@@ -15,7 +15,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build-user-service:
     runs-on: ubuntu-latest
 
     steps:
@@ -29,6 +29,6 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
-    - name: Build All Modules
-      run: mvn -B clean verify
+    - name: Build User Service
+      run: mvn clean install
       working-directory: user-product-service
