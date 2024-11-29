@@ -7,6 +7,7 @@ services:
         environment:
           - POSTGRES_PASSWORD=test
           - POSTGRES_DB=user_service
+          - POSTGRES_LISTEN_ADDRESSES='*'   # Allow connections from any IP address
         ports:
           - "5432:5432"  # Port for user_service database
         networks:
