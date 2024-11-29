@@ -29,5 +29,6 @@ jobs:
         cache: maven
 
     - name: Build User Service
-      run: mvn -B clean verify --file user-service/pom.xml
+      run: mvn -B clean verify
+      working-directory: E-Commerzion/user-product-service/user-service
         
