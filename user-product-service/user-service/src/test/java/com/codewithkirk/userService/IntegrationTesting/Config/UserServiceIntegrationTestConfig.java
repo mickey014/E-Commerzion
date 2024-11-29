@@ -12,7 +12,7 @@ public abstract class UserServiceIntegrationTestConfig {
                     .withDatabaseName("users")
                     .withUsername("postgres")
                     .withPassword("test")
-					.withExposedPorts(5100);  // Optionally expose port 5432
+					.withExposedPorts(5100)  // Optionally expose port 5432
 					.withNetworkMode("bridge");
 
     // Start the container statically
