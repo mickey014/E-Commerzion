@@ -8,6 +8,8 @@
 
 name: E-Commerzion CI with Maven
 
+name: Build Multi-Module Project
+
 on:
   push:
     branches: [ "main" ]
@@ -15,10 +17,11 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-user-service:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-    - name: Checkout code
+    - name: Checkout Code
       uses: actions/checkout@v4
 
     - name: Set up JDK 17
@@ -28,7 +31,5 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
-    - name: Build User Service
+    - name: Build All Modules
       run: mvn -B clean verify
-      working-directory: E-Commerzion/user-product-service/user-service
-        
