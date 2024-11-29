@@ -8,8 +8,6 @@
 
 name: E-Commerzion CI with Maven
 
-name: Build Multi-Module Project
-
 on:
   push:
     branches: [ "main" ]
