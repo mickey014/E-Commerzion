@@ -11,9 +11,7 @@ public abstract class UserServiceIntegrationTestConfig {
             new PostgreSQLContainer<>("postgres:14-alpine")
                     .withDatabaseName("users")
                     .withUsername("postgres")
-                    .withPassword("test")
-					.withExposedPorts(5100)  // Optionally expose port 5432
-					.withNetworkMode("bridge");
+                    .withPassword("test");
 
     // Start the container statically
     static {
