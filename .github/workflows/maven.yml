@@ -31,3 +31,4 @@ jobs:
 
     - name: Build All Modules
       run: mvn -B clean verify
+      working-directory: user-product-service
