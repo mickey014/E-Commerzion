@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface SellerService {
 
-    void registerSeller(SellerDto sellerDto);
+    Sellers registerSeller(SellerDto sellerDto);
 
     Optional<Sellers> getSellerByUserIdAndSellerId(Long userId, Long sellerId);
 
