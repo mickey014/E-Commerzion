@@ -1,7 +1,6 @@
 package com.codewithkirk.sellerService.Service.impl;
 
 import com.codewithkirk.sellerService.Dto.SellerDto;
-import com.codewithkirk.sellerService.Dto.UserDto;
 import com.codewithkirk.sellerService.Exception.SellerException;
 import com.codewithkirk.sellerService.Exception.SellerNotFoundException;
 import com.codewithkirk.sellerService.Model.Sellers;
@@ -23,7 +22,7 @@ public class SellerServiceImp implements SellerService {
     private final UserServiceClient userServiceClient;  // Inject Feign client
 
     @Override
-    public void registerSeller(SellerDto sellerDto) {
+    public Sellers registerSeller(SellerDto sellerDto) {
         userServiceClient.getUserById(sellerDto.getUserId());
 
         Long userId = sellerDto.getUserId();
@@ -69,7 +68,7 @@ public class SellerServiceImp implements SellerService {
         }
 
         // Build the new user object using the Builder pattern
-        Sellers newUser  = Sellers.builder()
+        Sellers newSeller  = Sellers.builder()
                 .userId(userId)
                 .sellerName(sellerName)
                 .storeName(storeName)
@@ -79,7 +78,9 @@ public class SellerServiceImp implements SellerService {
                 .photoUrl(photoUrl)
                 .status(Sellers.SellerStatus.ACTIVE) // Convert string to enum
                 .build();
-        sellerRepository.save(newUser);
+        sellerRepository.save(newSeller);
+
+        return newSeller;
     }
 
     @Override
