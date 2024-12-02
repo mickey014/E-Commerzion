@@ -2,12 +2,12 @@
 FROM maven:3.8.8-eclipse-temurin-17-alpine AS build
 WORKDIR /app
 COPY . .
-WORKDIR /app/user-service
+WORKDIR /app/user-product-service/user-service
 RUN mvn clean package -DskipTests  # Build the user-service JAR file
 
 # Stage 2: Runtime
 FROM openjdk:17-alpine
 WORKDIR /app
-COPY --from=build /app/user-service/target/user-service-0.0.1.jar app.jar
+COPY --from=build /app/user-product-service/user-service/target/user-service-0.0.1.jar app.jar
 EXPOSE 8001
 ENTRYPOINT ["java", "-jar", "/app.jar"]
