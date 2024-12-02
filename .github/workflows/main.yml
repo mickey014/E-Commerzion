@@ -6,22 +6,20 @@ on:
       - main
 
 jobs:
-  ensure-dev-merge:
+  deploy-to-production:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout repository
+
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Ensure dev branch is up-to-date
       - name: Update dev branch
         run: |
           git fetch origin dev
           git checkout dev
           git pull origin dev
 
-      # Step 3: Check if the features branch is merged into dev
       - name: Check if features branch is merged into dev
         run: |
           # Fetch latest changes from the dev branch
@@ -32,3 +30,13 @@ jobs:
             echo "This branch must be merged into 'dev' before being merged into 'main'."
             exit 1
           fi
+         
+      - name: Login, Build and Push User Service to Docker Hub
+        uses: docker/login-action@v2
+        run: |
+          docker build -t e-commerzion-${{ secrets.DOCKER_USERNAME }}/user-service -f user-service/Dockerfile.users .
+          docker push e-commerzion-${{ secrets.DOCKER_USERNAME }}/user-service
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        working-directory: user-product-service
