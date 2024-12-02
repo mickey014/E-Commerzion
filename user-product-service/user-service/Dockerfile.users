@@ -1,13 +1,16 @@
 # Stage 1: Build
 FROM maven:3.8.8-eclipse-temurin-17-alpine AS build
 WORKDIR /app
-COPY . .
-WORKDIR /app/user-product-service/user-service
+COPY . .  # Copy the entire project into the container
+WORKDIR /app/user-product-service/user-service  # Go to the correct directory for user-service
 RUN mvn clean package -DskipTests  # Build the user-service JAR file
 
 # Stage 2: Runtime
 FROM openjdk:17-alpine
 WORKDIR /app
-COPY --from=build /app/user-product-service/user-service/target/user-service-0.0.1.jar app.jar
+# Copy the JAR file from the build stage
+COPY --from=build /app/user-product-service/user-service/target/user-service-0.0.1.jar /app/app.jar
+# Debug step: Verify the contents of the /app directory in the runtime container
+RUN ls -l /app
 EXPOSE 8001
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]  # Run the application
