@@ -13,9 +13,9 @@ public interface SellerService {
 
     Optional<Sellers> getSellerById(Long id);
 
-    void updateSeller(Long userId, Long sellerId, SellerDto sellerDto);
+    Sellers updateSeller(Long userId, Long sellerId, SellerDto sellerDto);
 
-    void safeDeleteSeller(Long userId, Long sellerId);
+    Sellers safeDeleteSeller(Long userId, Long sellerId);
 
     void forceDeleteSeller(Long userId, Long sellerId);
 
