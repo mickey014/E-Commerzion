@@ -97,7 +97,7 @@ public class SellerServiceImp implements SellerService {
     }
 
     @Override
-    public void updateSeller(Long userId, Long sellerId, SellerDto sellerDto) {
+    public Sellers updateSeller(Long userId, Long sellerId, SellerDto sellerDto) {
         userServiceClient.getUserById(userId);
         Sellers seller = sellerRepository.findSellerByUserIdAndSellerId(userId, sellerId)
                 .orElseThrow(() -> new SellerNotFoundException("Seller not found."));
@@ -161,15 +161,17 @@ public class SellerServiceImp implements SellerService {
         seller.setStatus(status);
 
         sellerRepository.save(seller);
+        return seller;
     }
 
     @Override
-    public void safeDeleteSeller(Long userId, Long sellerId) {
+    public Sellers safeDeleteSeller(Long userId, Long sellerId) {
         userServiceClient.getUserById(userId);
         Sellers existingUser  = sellerRepository.findSellerByUserIdAndSellerId(userId, sellerId)
                 .orElseThrow(() -> new SellerException("Seller not found."));
         existingUser.setStatus(SellerStatus.INACTIVE); // Set status to INACTIVE
         sellerRepository.save(existingUser);
+        return existingUser;
     }
 
     @Override

@@ -1,34 +1,39 @@
-package com.codewithkirk.sellerService.UnitTesting;
+package com.codewithkirk.sellerService.IntegrationTesting;
 
 import com.codewithkirk.sellerService.Dto.SellerDto;
+import com.codewithkirk.sellerService.IntegrationTesting.Config.SellerServiceIntegrationTestConfig;
 import com.codewithkirk.sellerService.Model.Sellers;
 import com.codewithkirk.sellerService.Repository.SellerRepository;
 import com.codewithkirk.sellerService.Service.impl.SellerServiceImp;
 import com.codewithkirk.sellerService.ServiceClient.UserServiceClient;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.*;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@RequiredArgsConstructor
-public class SellerServiceUnitTest {
+public class SellerServiceIntegrationTest extends SellerServiceIntegrationTestConfig {
 
-    @Mock
-    private SellerRepository sellerRepository;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
-    @Mock
-    private UserServiceClient userServiceClient; // Mocked UserServiceClient
-
-    @InjectMocks
+    @Autowired
     private SellerServiceImp sellerServiceImp;
+
+    @Autowired
+    private UserServiceClient userServiceClient;
+
+    @Autowired
+    private SellerRepository sellerRepository;
 
     private SellerDto sellerDto;
     private Sellers newSeller;
@@ -46,8 +51,6 @@ public class SellerServiceUnitTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-
         // Arrange reusable test data
         sellerName = "John Doe";
         storeName = "J Doe Tech shop";
@@ -82,53 +85,45 @@ public class SellerServiceUnitTest {
                 .build();
     }
 
+    //@Test
+    void testDbConn() {
+        Integer result = jdbcTemplate.queryForObject("SELECT 1", Integer.class);
+        assertThat(result).isEqualTo(1);
+        if(result != null) {
+            System.out.println(result);
+            System.out.println("Connected to " + postgreSqlContainer.getDatabaseName() + " Integration test");
+        }
+    }
+
     @Test
     @Order(1)
     void shouldRegisterSeller() {
+        System.out.println("Connected to " + postgreSqlContainer.getDatabaseName() + " Integration test");
 
-        // Mock UserServiceClient behavior
-        when(userServiceClient.getUserById(sellerDto.getUserId())).thenReturn(null); // Mock a return value (adjust as needed)
-
-        // Build the new seller object using the Builder pattern
-        Sellers newSeller = Sellers.builder()
-                .sellerId(sellerId)
-                .userId(userId)
-                .sellerName(sellerName)
-                .storeName(storeName)
-                .email(email)
-                .phoneNumber(phoneNumber)
-                .location(location)
-                .photoUrl(photoUrl)
-                .status(status)
-                .build();
-
-        // Stub the repository save method to return the saved seller
-        when(sellerRepository.save(any(Sellers.class))).thenReturn(newSeller);
-
-        // Act: Call the method under test
+        userServiceClient.getUserById(sellerDto.getUserId());
+        // Act Call the method under test
         Sellers result = sellerServiceImp.registerSeller(sellerDto);
 
-        // Assert: Verify the behavior and output
+        // Assert: Verify the result
         assertNotNull(result);
+        assertEquals(userId, result.getUserId());
+        assertEquals(sellerId, result.getSellerId());
         assertEquals(email, result.getEmail());
         assertEquals(phoneNumber, result.getPhoneNumber());
 
-        // Verify save was called once
-        verify(sellerRepository, times(1)).save(any(Sellers.class));
-        // Verify UserServiceClient interaction
-        verify(userServiceClient, times(1)).getUserById(sellerDto.getUserId());
 
-        // Print the result to the console
-        System.out.println("Registered seller id: " + sellerId);
-        System.out.println("Registered seller: " + result);
+        if(result != null) {
+            System.out.println("Registered seller id: " + sellerId);
+            System.out.println("Registered user id: " + userId);
+            System.out.println("Registered seller: " + result);
+        }
     }
 
     @Test
     @Order(2)
     void shouldReturnSellerByUserIdAndSellerId() {
-
-        when(sellerRepository.findSellerByUserIdAndSellerId(userId, sellerId))
-                .thenReturn(Optional.of(newSeller));
+        System.out.println("Connected to " + postgreSqlContainer.getDatabaseName() + " Integration test");
+        userServiceClient.getUserById(sellerDto.getUserId());
 
         // Act
         Optional<Sellers> result = sellerServiceImp
@@ -139,10 +134,6 @@ public class SellerServiceUnitTest {
         assertEquals(userId, result.get().getUserId());
         assertEquals(sellerId, result.get().getSellerId());
 
-        // Verify interactions
-        verify(sellerRepository, times(1))
-                .findSellerByUserIdAndSellerId(userId, sellerId);
-
         // Print the result to the console
         System.out.println("User id: " + userId);
         System.out.println("Seller id: " + sellerId);
@@ -152,9 +143,8 @@ public class SellerServiceUnitTest {
     @Test
     @Order(3)
     void shouldReturnSellerById() {
-
-        when(sellerRepository.findById(sellerId))
-                .thenReturn(Optional.of(newSeller));
+        System.out.println("Connected to " + postgreSqlContainer.getDatabaseName() + " Integration test");
+        userServiceClient.getUserById(sellerDto.getUserId());
 
         // Act
         Optional<Sellers> result = sellerServiceImp
@@ -165,11 +155,8 @@ public class SellerServiceUnitTest {
         assertEquals(userId, result.get().getUserId());
         assertEquals(sellerId, result.get().getSellerId());
 
-        // Verify interactions
-        verify(sellerRepository, times(1))
-                .findById(sellerId);
-
         // Print the result to the console
+        System.out.println("User id: " + userId);
         System.out.println("Seller id: " + sellerId);
         System.out.println("Seller: " + result);
     }
@@ -177,6 +164,8 @@ public class SellerServiceUnitTest {
     @Test
     @Order(4)
     void shouldUpdateSeller() {
+        System.out.println("Connected to " + postgreSqlContainer.getDatabaseName() + " Integration test");
+
         // Arrange reusable test data
         sellerName = "John Doe test";
         storeName = "J Doe Tech shop tset";
@@ -211,10 +200,7 @@ public class SellerServiceUnitTest {
                 .status(status)
                 .build();
 
-        when(userServiceClient.getUserById(userId)).thenReturn(new Sellers()); // Mock a valid user
-        when(sellerRepository.findSellerByUserIdAndSellerId(userId, sellerId))
-                .thenReturn(Optional.of(updateSeller));
-        when(sellerRepository.save(any(Sellers.class))).thenReturn(updateSeller);
+        userServiceClient.getUserById(updateSellerDto.getUserId());
 
         // Call method
         Sellers result = sellerServiceImp.updateSeller(userId, sellerId, updateSellerDto);
@@ -224,8 +210,6 @@ public class SellerServiceUnitTest {
         assertEquals(email, updateSellerDto.getEmail());
         assertEquals(phoneNumber, updateSellerDto.getPhoneNumber());
 
-        verify(sellerRepository, times(1)).save(any(Sellers.class));
-
         System.out.println("Updated user id: " + userId);
         System.out.println("Updated seller id: " + sellerId);
         System.out.println("Updated seller: " + result);
@@ -234,6 +218,7 @@ public class SellerServiceUnitTest {
     @Test
     @Order(5)
     void shouldSafeDeleteSeller() {
+        System.out.println("Connected to " + postgreSqlContainer.getDatabaseName() + " Integration test");
 
         Sellers existingSeller = Sellers.builder()
                 .sellerId(sellerId)
@@ -241,12 +226,7 @@ public class SellerServiceUnitTest {
                 .status(Sellers.SellerStatus.ACTIVE)
                 .build();
 
-        // Mock dependencies
-        when(userServiceClient.getUserById(userId)).thenReturn(new Sellers()); // Mock user retrieval
-        when(sellerRepository.findSellerByUserIdAndSellerId(userId, sellerId))
-                .thenReturn(Optional.of(existingSeller));
-        when(sellerRepository.save(any(Sellers.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+        userServiceClient.getUserById(existingSeller.getUserId());
 
         // Act: Call the method
         Sellers result = sellerServiceImp.safeDeleteSeller(userId, sellerId);
@@ -256,11 +236,6 @@ public class SellerServiceUnitTest {
         assertEquals(Sellers.SellerStatus.INACTIVE, result.getStatus());
         assertEquals(sellerId, result.getSellerId());
         assertEquals(userId, result.getUserId());
-
-        // Verify interactions with mocks
-        verify(userServiceClient, times(1)).getUserById(userId);
-        verify(sellerRepository, times(1)).findSellerByUserIdAndSellerId(userId, sellerId);
-        verify(sellerRepository, times(1)).save(existingSeller);
 
         if(result != null) {
             System.out.println("Safe delete seller id: " + sellerId);
@@ -272,19 +247,11 @@ public class SellerServiceUnitTest {
     @Test
     @Order(6)
     void shouldForceDeleteSeller() {
-
-        // Mock dependencies
-        when(userServiceClient.getUserById(userId)).thenReturn(new Sellers()); // Mock user retrieval
-        when(sellerRepository.findSellerByUserIdAndSellerId(userId, sellerId))
-                .thenReturn(Optional.of(new Sellers()));
+        System.out.println("Connected to " + postgreSqlContainer.getDatabaseName() + " Integration test");
+        userServiceClient.getUserById(userId);
 
         // Act: Call the method
         sellerServiceImp.forceDeleteSeller(userId, sellerId);
-
-        // Verify interactions with mocks
-        verify(userServiceClient, times(1)).getUserById(userId);
-        verify(sellerRepository, times(1))
-                .findSellerByUserIdAndSellerId(userId, sellerId);
 
         System.out.println("Force delete seller id: " + sellerId);
         System.out.println("Force delete user id: " + userId);
