@@ -7,6 +7,6 @@ RUN mvn clean package -DskipTests
 # Stage 2: Runtime
 FROM openjdk:17-alpine
 WORKDIR /app
-COPY --from=build /app/target/user-service-0.0.1.jar app.jar
+COPY --from=build /user-service/target/user-service-0.0.1.jar app.jar
 EXPOSE 8001
 ENTRYPOINT ["java", "-jar", "/app.jar"]
