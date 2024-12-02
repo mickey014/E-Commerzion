@@ -58,7 +58,3 @@ jobs:
               run: mvn -B clean verify --projects user-service
               working-directory: user-product-service
             
-            # Step 6: Deploy to Staging (Optional)
-            - name: Deploy to Staging
-                if: ${{ success() }}
-                run: echo "Deploying to staging environment..."
