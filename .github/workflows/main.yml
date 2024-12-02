@@ -33,8 +33,8 @@ jobs:
          
       - name: Build and Push User Service Docker Image
         run: |
-          docker build -t E-Commerzion-${{ secrets.DOCKER_USERNAME }}/User-Service -f user-service/Dockerfile.users .
-          docker push E-Commerzion-${{ secrets.DOCKER_USERNAME }}/User-Service
+          docker build -t e-commerzion-${{ secrets.DOCKER_USERNAME }}/user-service -f user-service/Dockerfile.users .
+          docker push e-commerzion-${{ secrets.DOCKER_USERNAME }}/user-service
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
