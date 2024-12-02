@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  ensure-dev-merge:
+  deploy-to-production:
     runs-on: ubuntu-latest
 
     steps:
