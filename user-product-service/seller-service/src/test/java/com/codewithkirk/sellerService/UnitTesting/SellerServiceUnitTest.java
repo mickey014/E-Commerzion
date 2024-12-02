@@ -171,7 +171,7 @@ public class SellerServiceUnitTest {
 
         // Print the result to the console
         System.out.println("Seller id: " + sellerId);
-        System.out.println("Seller: " + result);
+        System.out.println("Sellers: " + result);
     }
 
 
