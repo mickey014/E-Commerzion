@@ -1,0 +1,22 @@
+name: E-Commerzion CI/CD with Maven - Main Branch
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ensure-dev-merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Check if branch is merged into dev
+        run: |
+          git fetch origin dev
+          if ! git merge-base --is-ancestor origin/dev HEAD; then
+            echo "This branch must be merged into 'dev' before being merged into 'main'."
+            exit 1
+          fi
