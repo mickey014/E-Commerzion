@@ -254,7 +254,7 @@ public class SellerServiceIntegrationTest extends SellerServiceIntegrationTestCo
         sellerServiceImp.forceDeleteSeller(userId, sellerId);
 
         System.out.println("Force delete seller id: " + sellerId);
-        System.out.println("Force delete user id: " + userId);
+        System.out.println("Force delete users id: " + userId);
     }
 
 }
