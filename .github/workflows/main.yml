@@ -40,8 +40,7 @@ jobs:
       - name: Build and Push User Service Docker Image
         uses: docker/build-push-action@v3
         with:
-          context: .
+          context: user-product-service
           file: user-service/Dockerfile.users
           push: true
           tags: e-commerzion-${{ secrets.DOCKER_USERNAME }}/user-service:latest
-        working-directory: user-product-service
