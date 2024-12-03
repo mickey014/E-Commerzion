@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  user-service-db:
+    image: kirk006/e-commerzion-user-service-db:latest
+    container_name: user-service-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: user_service
+    ports:
+      - "5432:5432"  # Expose PostgreSQL on localhost
+    networks:
+      - postgres-network
+    volumes:
+      - user-service-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  user-service-app:
+    image: kirk006/e-commerzion-user-service-app:latest
+    container_name: user-service-app
+    ports:
+      - "8001:8001"  # Expose application on localhost
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://user-service-db:5432/user_service
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: test
+    networks:
+      - postgres-network
+    restart: unless-stopped
+
+networks:
+  postgres-network:
+    driver: bridge
+
+volumes:
+  user-service-data:
+    driver: local
