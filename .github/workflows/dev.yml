@@ -105,21 +105,12 @@ jobs:
           done
           
       # Step 5: Pull and Run user-service
-      - name: Check user-service container existence
-        run: |
-          if docker manifest inspect kirk006/e-commerzion-user-service:latest > /dev/null 2>&1; then
-            echo "User-service container exists on Docker Hub."
-          else
-            echo "User-service container does not exist on Docker Hub."
-            exit 1
-          fi
-      
       - name: Pull user-service image
-        run: docker pull kirk006/e-commerzion-user-service:latest
+        run: docker pull kirk006/e-commerzion-user-service-app:latest
 
       - name: Run user-service container
         run: |
-          docker run -d --name user-service -p 8001:8001 kirk006/e-commerzion-user-service:latest
+          docker run -d --name user-service -p 8001:8001 kirk006/e-commerzion-user-service-app:latest
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/user_service
           SPRING_DATASOURCE_USERNAME: postgres
