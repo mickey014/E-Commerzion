@@ -63,7 +63,7 @@ jobs:
       - name: Pull and Run User Service App
         run: |
           docker run -d --name user-service-app --network e-commerzion-network -p 8001:8001 \
-          --env SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-user-service:5432/user_service \
+          --env SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/user_service \
           --env SPRING_DATASOURCE_USERNAME=postgres \
           --env SPRING_DATASOURCE_PASSWORD=test \
           kirk006/e-commerzion-user-service-app:latest
