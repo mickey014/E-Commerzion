@@ -48,7 +48,7 @@ jobs:
       - name: Build User Service
         run: mvn -B clean verify --projects user-service
         working-directory: user-product-service
-        
+
   seller-service:
     runs-on: ubuntu-latest
 
@@ -81,28 +81,27 @@ jobs:
           echo "SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5433/seller_service" >> $GITHUB_ENV
           echo "SPRING_DATASOURCE_USERNAME=postgres" >> $GITHUB_ENV
           echo "SPRING_DATASOURCE_PASSWORD=test" >> $GITHUB_ENV
-      - name: Wait for PostgreSQL to be ready
-        run: |
-          until pg_isready -h localhost -p 5433 -U postgres; do
-            echo "Waiting for PostgreSQL to be ready..."
-            sleep 5
-          done
       - name: Pull user-service-db image
         run: docker pull kirk006/e-commerzion-user-service-db:latest
       - name: Pull user-service-app image
         run: docker pull kirk006/e-commerzion-user-service-app:latest
       - name: Run user-service container
         run: |
-          docker network create ecommerzion-network || true  # Create network if not exists
-          docker run -d --name user-service-db --network=ecommerzion-network -p 5432:5432 kirk006/e-commerzion-user-service-db:latest
-          docker run -d --name user-service-app --network=ecommerzion-network -p 8001:8001 kirk006/e-commerzion-user-service-app:latest
+          docker run -d --name user-service-db --network=host -p 5432:5432 kirk006/e-commerzion-user-service-db:latest
+          docker run -d --name user-service-app --network=host -p 8001:8001 kirk006/e-commerzion-user-service-app:latest
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://user-service-db:5432/user_service
           SPRING_DATASOURCE_USERNAME: postgres
           SPRING_DATASOURCE_PASSWORD: test
+      - name: Wait for user-service to be ready
+        run: |
+          until curl -s http://user-service:8001/api/v1/users/1; do
+            echo "Waiting for user-service to be ready..."
+            sleep 5
+          done
       - name: Configure Feign Client for user-service
         run: |
-          echo "external.api.userService.hostUrl=http://user-service-app:8001/api/v1" >> $GITHUB_ENV
+          echo "external.api.userService.hostUrl=http://user-service:8001/api/v1" >> $GITHUB_ENV
       - name: Build Seller Service
         run: mvn -B clean verify --projects seller-service
         working-directory: user-product-service
