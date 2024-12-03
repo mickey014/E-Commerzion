@@ -69,6 +69,7 @@ jobs:
       SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5433/seller_service
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: test
+      EXTERNAL_API_USER_SERVICE_HOST: "http://localhost:8001/api/v1"
 
     services:
       postgres:
@@ -99,29 +100,27 @@ jobs:
           echo "SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5433/seller_service" >> $GITHUB_ENV
           echo "SPRING_DATASOURCE_USERNAME=postgres" >> $GITHUB_ENV
           echo "SPRING_DATASOURCE_PASSWORD=test" >> $GITHUB_ENV
-      - name: Pull user-service-db image
-        run: docker pull kirk006/e-commerzion-user-service-db:latest
-      - name: Pull user-service-app image
-        run: docker pull kirk006/e-commerzion-user-service-app:latest
-      - name: Run user-service containers
+      - name: Run user-service-db container on the same network
         run: |
-          docker run -d --name user-service-db -p 5432:5432 kirk006/e-commerzion-user-service-db:latest
-          docker run -d --name user-service-app -p 8001:8001 kirk006/e-commerzion-user-service-app:latest
+          docker network create e-commerzion-network || true
+          docker run -d --name user-service-db --network e-commerzion-network -p 5432:5432 kirk006/e-commerzion-user-service-db:latest
       - name: Wait for user-service-db to be ready
         run: |
           until pg_isready -h localhost -p 5432 -U postgres; do
             echo "Waiting for user-service-db to be ready..."
             sleep 5
           done
+      - name: Pull user-service-app image
+        run: docker pull kirk006/e-commerzion-user-service-app:latest
+      - name: Run user-service-app container on the same network
+        run: |
+          docker run -d --name user-service-app --network e-commerzion-network -p 8001:8001 kirk006/e-commerzion-user-service-app:latest
       - name: Wait for user-service-app to be ready
         run: |
           until curl -s http://localhost:8001/api/v1/users/1; do
             echo "Waiting for user-service-app to be ready..."
             sleep 10
           done
-      - name: Configure Feign Client for user-service
-        run: |
-          echo "external.api.userService.hostUrl=http://localhost:8001/api/v1" >> $GITHUB_ENV
       - name: Wait for seller-service to be ready
         run: |
           until curl -s http://localhost:8002/api/v1/seller/health; do
