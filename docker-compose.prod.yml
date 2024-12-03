@@ -15,6 +15,21 @@ services:
     volumes:
       - user-service-data:/var/lib/postgresql/data
     restart: unless-stopped
+    
+  seller-service-db:
+    image: kirk006/e-commerzion-seller-service-db:latest
+    container_name: seller-service-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: seller_service
+    ports:
+      - "5433:5432"  # Expose PostgreSQL on localhost
+    networks:
+      - postgres-network
+    volumes:
+      - seller-service-data:/var/lib/postgresql/data
+    restart: unless-stopped
 
   user-service-app:
     image: kirk006/e-commerzion-user-service-app:latest
@@ -25,9 +40,30 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://user-service-db:5432/user_service
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: test
+    depends_on:
+      - user-service-db
     networks:
       - postgres-network
     restart: unless-stopped
+    
+  seller-service-app:
+    image: kirk006/e-commerzion-seller-service-app:latest
+    container_name: seller-service-app
+    ports:
+      - "8101:8101"  # Expose application on localhost
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://seller-service-db:5433/seller_service
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: test
+    depends_on:
+      - user-service-db
+      - user-service-app
+      - seller-service-db
+    networks:
+      - postgres-network
+    restart: unless-stopped
+
+    
 
 networks:
   postgres-network:
@@ -35,4 +71,6 @@ networks:
 
 volumes:
   user-service-data:
+    driver: local
+  seller-service-data:
     driver: local
