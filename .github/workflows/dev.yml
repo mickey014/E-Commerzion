@@ -25,20 +25,6 @@ jobs:
           --health-timeout=5s
           --health-retries=5
 
-      postgres-seller-service:
-        image: postgres:14-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: test
-          POSTGRES_DB: seller_service
-        ports:
-          - 5433:5432
-        options: >-
-          --health-cmd="pg_isready -U postgres -d seller_service"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -50,44 +36,33 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Test Database Connectivity (User Service)
-        run: |
-          echo "Testing connection to user_service database..."
-          until pg_isready -h localhost -p 5432 -U postgres -d user_service; do
-            echo "Waiting for PostgreSQL user_service database to be ready..."
-            sleep 5
-          done
-
       - name: Build User Service
         run: mvn -B clean verify --projects user-service
         working-directory: user-product-service
-        
-      - name: Pull and Run User Service App
-        run: |
-          docker pull kirk006/e-commerzion-user-service-app:latest
-          docker network create e-commerzion-network || true
-          docker run -d --name user-service-app --network e-commerzion-network -p 8001:8001 \
-          kirk006/e-commerzion-user-service-app:latest
 
-      - name: Configure Seller Service Database Connection
+      - name: Configure User Service App
         run: |
-          echo "SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5433/seller_service" >> $GITHUB_ENV
+          echo "SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/user_service" >> $GITHUB_ENV
           echo "SPRING_DATASOURCE_USERNAME=postgres" >> $GITHUB_ENV
           echo "SPRING_DATASOURCE_PASSWORD=test" >> $GITHUB_ENV
 
-      - name: Test Database Connectivity (Seller Service)
+      - name: Pull and Run User Service App
         run: |
-          echo "Testing connection to seller_service database..."
-          until pg_isready -h localhost -p 5433 -U postgres -d seller_service; do
-            echo "Waiting for PostgreSQL seller_service database to be ready..."
+          docker network create e-commerzion-network || true
+          docker run -d --name user-service-app --network e-commerzion-network -p 8001:8001 \
+            kirk006/e-commerzion-user-service-app:latest
+
+      - name: Wait for User Service App to Start
+        run: |
+          echo "Waiting for user-service-app to start..."
+          until curl -s http://localhost:8001/api/v1/users/1; do
             sleep 5
           done
+          echo "user-service-app is running."
 
-      - name: Build Seller Service
-        run: mvn -B clean verify --projects seller-service
+      - name: Run Integration Tests
+        run: mvn -B verify -Pintegration-test
         working-directory: user-product-service
-
-      
 
       - name: Clean Up Docker Containers
         run: |
