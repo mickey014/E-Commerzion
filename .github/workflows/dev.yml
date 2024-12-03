@@ -89,6 +89,9 @@ jobs:
         run: |
           docker run -d --name user-service-db --network=host -p 5432:5432 kirk006/e-commerzion-user-service-db:latest
           docker run -d --name user-service-app --network=host -p 8001:8001 kirk006/e-commerzion-user-service-app:latest
+          echo "SPRING_DATASOURCE_URL=jdbc:postgresql://user-service-db:5432/user_service" >> $GITHUB_ENV
+          echo "SPRING_DATASOURCE_USERNAME=postgres" >> $GITHUB_ENV
+          echo "SPRING_DATASOURCE_PASSWORD=test" >> $GITHUB_ENV
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://user-service-db:5432/user_service
           SPRING_DATASOURCE_USERNAME: postgres
