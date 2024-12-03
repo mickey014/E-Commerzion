@@ -61,6 +61,13 @@ jobs:
       - name: Build User Service
         run: mvn -B clean verify --projects user-service
         working-directory: user-product-service
+        
+      - name: Pull and Run User Service App
+        run: |
+          docker pull kirk006/e-commerzion-user-service-app:latest
+          docker network create e-commerzion-network || true
+          docker run -d --name user-service-app --network e-commerzion-network -p 8001:8001 \
+          kirk006/e-commerzion-user-service-app:latest
 
       - name: Configure Seller Service Database Connection
         run: |
@@ -80,12 +87,7 @@ jobs:
         run: mvn -B clean verify --projects seller-service
         working-directory: user-product-service
 
-      - name: Pull and Run User Service App
-        run: |
-          docker pull kirk006/e-commerzion-user-service-app:latest
-          docker network create e-commerzion-network || true
-          docker run -d --name user-service-app --network e-commerzion-network -p 8001:8001 \
-            kirk006/e-commerzion-user-service-app:latest
+      
 
       - name: Clean Up Docker Containers
         run: |
