@@ -48,10 +48,13 @@ jobs:
       - name: Build User Service
         run: mvn -B clean verify --projects user-service
         working-directory: user-product-service
+      - name: Clean up Docker containers
+        run: |
+          docker stop user-service-db user-service-app || true
+          docker rm user-service-db user-service-app || true
 
   seller-service:
     runs-on: ubuntu-latest
-    needs: user-service  # Ensure user-service job finishes first
 
     services:
       postgres:
@@ -114,3 +117,7 @@ jobs:
       - name: Build Seller Service
         run: mvn -B clean verify --projects seller-service
         working-directory: user-product-service
+      - name: Clean up Docker containers
+        run: |
+          docker stop user-service-db user-service-app || true
+          docker rm user-service-db user-service-app || true
