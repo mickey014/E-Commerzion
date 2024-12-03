@@ -80,11 +80,11 @@ jobs:
       - name: Create a User in User Service
         run: |
           echo "Creating a user in user-service-app..."
-          curl -X POST http://localhost:8001/api/v1/users \
+          curl -X POST http://localhost:8001/api/v1/users/register \
                -H "Content-Type: application/json" \
                -d '{
                    "name": "Johzzzn Doe",
-                   "username": "john_d1oe@gmail.com",
+                   "username": "john_doe@gmail.com",
                    "password": "test",
                    "confirmPassword": "test"
                }'
