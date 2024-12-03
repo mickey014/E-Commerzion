@@ -17,6 +17,8 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: test
           POSTGRES_DB: user_service
+        ports:
+          - "5432:5432"
         options: >-
           --health-cmd="pg_isready -U postgres -d user_service"
           --health-interval=10s
@@ -29,6 +31,8 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: test
           POSTGRES_DB: seller_service
+        ports:
+          - "5433:5432"
         options: >-
           --health-cmd="pg_isready -U postgres -d seller_service"
           --health-interval=10s
