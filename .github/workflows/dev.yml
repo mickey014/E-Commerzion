@@ -26,9 +26,9 @@ jobs:
         working-directory: user-product-service
         
       - name: Run tests
-        run: mvn test
+        run: mvn test --projects user-service
         working-directory: user-product-service
 
       - name: Package the application
-        run: mvn package -DskipTests
+        run: mvn package -DskipTests --projects user-service
         working-directory: user-product-service
