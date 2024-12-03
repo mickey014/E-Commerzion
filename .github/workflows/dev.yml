@@ -81,7 +81,6 @@ jobs:
           echo "SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5433/seller_service" >> $GITHUB_ENV
           echo "SPRING_DATASOURCE_USERNAME=postgres" >> $GITHUB_ENV
           echo "SPRING_DATASOURCE_PASSWORD=test" >> $GITHUB_ENV
-          echo "external.api.userService.hostUrl=http://user-service:8001/api/v1" >> $GITHUB_ENV
       - name: Wait for PostgreSQL to be ready
         run: |
           until pg_isready -h localhost -p 5433 -U postgres; do
