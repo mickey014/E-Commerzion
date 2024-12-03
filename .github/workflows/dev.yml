@@ -18,7 +18,6 @@ jobs:
           POSTGRES_PASSWORD: test
           POSTGRES_DB: user_service
         options: >-
-          --network=e-commerzion-network
           --health-cmd="pg_isready -U postgres -d user_service"
           --health-interval=10s
           --health-timeout=5s
@@ -31,7 +30,6 @@ jobs:
           POSTGRES_PASSWORD: test
           POSTGRES_DB: seller_service
         options: >-
-          --network=e-commerzion-network
           --health-cmd="pg_isready -U postgres -d seller_service"
           --health-interval=10s
           --health-timeout=5s
