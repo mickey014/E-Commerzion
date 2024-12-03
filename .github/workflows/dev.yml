@@ -91,8 +91,9 @@ jobs:
         run: docker pull kirk006/e-commerzion-user-service-app:latest
       - name: Run user-service containers
         run: |
-          docker run -d --name user-service-db --network=host -p 5432:5432 kirk006/e-commerzion-user-service-db:latest
-          docker run -d --name user-service-app --network=host -p 8001:8001 kirk006/e-commerzion-user-service-app:latest
+          docker network create ecom-network || true
+          docker run -d --name user-service-db --network=ecom-network -p 5432:5432 kirk006/e-commerzion-user-service-db:latest
+          docker run -d --name user-service-app --network=ecom-network -p 8001:8001 kirk006/e-commerzion-user-service-app:latest
           echo "SPRING_DATASOURCE_USER_URL=jdbc:postgresql://localhost:5432/user_service" >> $GITHUB_ENV
           echo "SPRING_DATASOURCE_USER_USERNAME=postgres" >> $GITHUB_ENV
           echo "SPRING_DATASOURCE_USER_PASSWORD=test" >> $GITHUB_ENV
@@ -104,7 +105,7 @@ jobs:
           done
       - name: Wait for user-service-app to be ready
         run: |
-          until curl -s http://localhost:8001/api/v1/users/1; do
+          until curl -s -o /dev/null -w "%{http_code}" http://localhost:8001/api/v1/users/1 | grep -q "200"; do
             echo "Waiting for user-service-app to be ready..."
             sleep 10
           done
@@ -113,7 +114,7 @@ jobs:
           echo "external.api.userService.hostUrl=http://localhost:8001/api/v1" >> $GITHUB_ENV
       - name: Wait for seller-service to be ready
         run: |
-          until curl -s http://localhost:8002/api/v1/seller/health; do
+          until curl -s -o /dev/null -w "%{http_code}" http://localhost:8002/api/v1/seller/health | grep -q "200"; do
             echo "Waiting for seller-service to be ready..."
             sleep 10
           done
@@ -124,3 +125,4 @@ jobs:
         run: |
           docker stop user-service-db user-service-app || true
           docker rm user-service-db user-service-app || true
+          docker network rm ecom-network || true
