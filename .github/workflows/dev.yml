@@ -77,8 +77,27 @@ jobs:
           done
           echo "\nuser-service-app is running."
 
+      - name: Create a User in User Service
+        run: |
+          echo "Creating a user in user-service-app..."
+          curl -X POST http://localhost:8001/api/v1/users \
+               -H "Content-Type: application/json" \
+               -d '{
+                   "name": "Johzzzn Doe",
+                   "username": "john_d1oe@gmail.com",
+                   "password": "test",
+                   "confirmPassword": "test"
+               }'
+
       - name: Run Integration Tests
         run: mvn -B clean verify --projects seller-service
         working-directory: user-product-service
 
-   
+      - name: Clean Up Docker Containers
+        run: |
+          docker stop user-service-app postgres-user-service postgres-seller-service || true
+          docker rm user-service-app postgres-user-service postgres-seller-service || true
+
+      - name: Clean Up Docker Network
+        run: docker network rm e-commerzion-network || true
+    
