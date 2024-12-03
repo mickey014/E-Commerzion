@@ -104,13 +104,13 @@ jobs:
             sleep 5
           done
           
-      # Step 5: Pull and Run user-service
+      # Step 5: Pull and Run user-service container
       - name: Pull user-service image
         run: docker pull kirk006/e-commerzion-user-service-app:latest
 
       - name: Run user-service container
         run: |
-          docker run -d --name user-service -p 8001:8001 kirk006/e-commerzion-user-service-app:latest
+          docker run -d --name user-service --network=host -p 8001:8001 kirk006/e-commerzion-user-service-app:latest
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/user_service
           SPRING_DATASOURCE_USERNAME: postgres
