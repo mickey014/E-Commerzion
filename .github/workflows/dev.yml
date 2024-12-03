@@ -75,8 +75,10 @@ jobs:
             echo "Waiting for user-service-app..."
             sleep 5
           done
-          echo "user-service-app is running."
+          echo "\nuser-service-app is running."
 
       - name: Run Integration Tests
         run: mvn -B clean verify --projects seller-service
         working-directory: user-product-service
+
+   
