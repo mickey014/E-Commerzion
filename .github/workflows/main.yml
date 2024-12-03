@@ -50,8 +50,8 @@ jobs:
       - name: Build and Push User Service Docker Image
         uses: docker/build-push-action@v3
         with:
-          context: ./user-product-service/user-service
-          file: ./user-product-service/user-service/Dockerfile.users
+          context: .
+          file: user-product-service/user-service/Dockerfile.users
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-user-service-app:latest
 
@@ -65,7 +65,7 @@ jobs:
       - name: Build and Push Seller Service Docker Image
         uses: docker/build-push-action@v3
         with:
-          context: ./user-product-service/seller-service
-          file: ./user-product-service/seller-service/Dockerfile.sellers
+          context: .
+          file: user-product-service/seller-service/Dockerfile.sellers
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-seller-service-app:latest
