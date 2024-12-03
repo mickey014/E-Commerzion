@@ -75,16 +75,8 @@ jobs:
             echo "Waiting for user-service-app..."
             sleep 5
           done
-          echo "user-service-app is running."
+          echo "\nuser-service-app is running."
 
       - name: Run Integration Tests
         run: mvn -B clean verify --projects seller-service
         working-directory: user-product-service
-
-      - name: Clean Up Docker Containers
-        run: |
-          docker stop user-service-app postgres-user-service postgres-seller-service || true
-          docker rm user-service-app postgres-user-service postgres-seller-service || true
-
-      - name: Clean Up Docker Network
-        run: docker network rm e-commerzion-network || true
