@@ -103,8 +103,34 @@ jobs:
             echo "Waiting for PostgreSQL to be ready..."
             sleep 5
           done
+          
+      # Step 5: Pull and Run user-service
+      - name: Check user-service container existence
+        run: |
+          if docker manifest inspect kirk006/e-commerzion-user-service:latest > /dev/null 2>&1; then
+            echo "User-service container exists on Docker Hub."
+          else
+            echo "User-service container does not exist on Docker Hub."
+            exit 1
+          fi
+      
+      - name: Pull user-service image
+        run: docker pull kirk006/e-commerzion-user-service:latest
 
-      # Step 5: Build Seller Service
+      - name: Run user-service container
+        run: |
+          docker run -d --name user-service -p 8001:8001 kirk006/e-commerzion-user-service:latest
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/user_service
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: test
+          
+      # Step 6: Configure Feign Client for user-service
+      - name: Configure Feign Client for user-service
+        run: |
+          echo "USER_SERVICE_URL=http://localhost:8001" >> $GITHUB_ENV
+
+      # Step 7: Build Seller Service
       - name: Build Seller Service
         run: mvn -B clean verify --projects seller-service
         working-directory: user-product-service
