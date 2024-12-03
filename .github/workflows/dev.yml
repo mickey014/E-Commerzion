@@ -96,7 +96,7 @@ jobs:
           docker run -d --name user-service-app --network=host -p 8001:8001 kirk006/e-commerzion-user-service-app:latest
       - name: Wait for user-service-db to be ready
         run: |
-          until pg_isready -h localhost -p 5432 -U postgres; do
+          until pg_isready -h localhost -p 5432 -U user_service; do
             echo "Waiting for user-service-db to be ready..."
             sleep 5
           done
