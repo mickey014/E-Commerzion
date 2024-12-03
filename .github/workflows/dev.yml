@@ -10,35 +10,6 @@ jobs:
   e-commerzion-services:
     runs-on: ubuntu-latest
 
-    services:
-      postgres-user-service:
-        image: postgres:14-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: test
-          POSTGRES_DB: user_service
-        ports:
-          - "5432:5432"
-        options: >-
-          --health-cmd="pg_isready -U postgres -d user_service"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-          
-      postgres-seller-service:
-        image: postgres:14-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: test
-          POSTGRES_DB: seller_service
-        ports:
-          - "5433:5432"
-        options: >-
-          --health-cmd="pg_isready -U postgres -d seller_service"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -52,7 +23,39 @@ jobs:
 
       - name: Create Docker Network
         run: docker network create e-commerzion-network || true
-        
+
+      - name: Run PostgreSQL for User Service
+        run: |
+          docker run -d --name postgres-user-service --network e-commerzion-network \
+          -e POSTGRES_USER=postgres \
+          -e POSTGRES_PASSWORD=test \
+          -e POSTGRES_DB=user_service \
+          -p 5432:5432 postgres:14-alpine
+
+      - name: Run PostgreSQL for Seller Service
+        run: |
+          docker run -d --name postgres-seller-service --network e-commerzion-network \
+          -e POSTGRES_USER=postgres \
+          -e POSTGRES_PASSWORD=test \
+          -e POSTGRES_DB=seller_service \
+          -p 5433:5432 postgres:14-alpine
+
+      - name: Wait for PostgreSQL to Start
+        run: |
+          echo "Waiting for postgres-user-service..."
+          until docker exec postgres-user-service pg_isready -U postgres -d user_service; do
+            echo "Waiting for user_service database..."
+            sleep 5
+          done
+          
+          echo "Waiting for postgres-seller-service..."
+          until docker exec postgres-seller-service pg_isready -U postgres -d seller_service; do
+            echo "Waiting for seller_service database..."
+            sleep 5
+          done
+
+          echo "PostgreSQL databases are ready."
+
       - name: Build User Service
         run: mvn -B clean verify --projects user-service
         working-directory: user-product-service
@@ -60,12 +63,16 @@ jobs:
       - name: Pull and Run User Service App
         run: |
           docker run -d --name user-service-app --network e-commerzion-network -p 8001:8001 \
+          --env SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-user-service:5432/user_service \
+          --env SPRING_DATASOURCE_USERNAME=postgres \
+          --env SPRING_DATASOURCE_PASSWORD=test \
           kirk006/e-commerzion-user-service-app:latest
 
       - name: Wait for User Service App to Start
         run: |
           echo "Waiting for user-service-app to start..."
-          until curl -s http://localhost:8001/api/v1/users/1; do
+          until curl -s http://localhost:8001/actuator/health | grep '"status":"UP"'; do
+            echo "Waiting for user-service-app..."
             sleep 5
           done
           echo "user-service-app is running."
@@ -76,8 +83,8 @@ jobs:
 
       - name: Clean Up Docker Containers
         run: |
-          docker stop user-service-app seller-service-app || true
-          docker rm user-service-app seller-service-app || true
+          docker stop user-service-app postgres-user-service postgres-seller-service || true
+          docker rm user-service-app postgres-user-service postgres-seller-service || true
 
       - name: Clean Up Docker Network
         run: docker network rm e-commerzion-network || true
