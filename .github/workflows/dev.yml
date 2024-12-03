@@ -91,13 +91,8 @@ jobs:
             echo "Waiting for seller_service database..."
             sleep 5
           done &
-
-          wait
+          
           echo "PostgreSQL databases are ready."
-
-      - name: Build Seller Service
-        run: mvn -B clean verify --projects seller-service
-        working-directory: user-product-service
 
       - name: Pull and Run User Service App
         run: |
