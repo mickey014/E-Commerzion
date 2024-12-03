@@ -78,20 +78,21 @@ jobs:
           -e POSTGRES_DB=seller_service \
           -p 5433:5432 postgres:14-alpine
 
-      - name: Wait for PostgreSQL to Start
+      - name: Wait for PostgreSQL Databases to Start
         run: |
           echo "Waiting for user-service-db..."
           until docker exec user-service-db pg_isready -U postgres -d user_service; do
             echo "Waiting for user_service database..."
             sleep 5
-          done
+          done &
           
           echo "Waiting for seller-service-db..."
           until docker exec seller-service-db pg_isready -U postgres -d seller_service; do
             echo "Waiting for seller_service database..."
             sleep 5
-          done
-
+          done &
+          
+          wait
           echo "PostgreSQL databases are ready."
 
       - name: Pull and Run User Service App
