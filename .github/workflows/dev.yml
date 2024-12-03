@@ -58,6 +58,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
+          
+      - name: Create Docker Network
+        run: docker network create e-commerzion-network || true
 
       - name: Run PostgreSQL for User Service
         run: |
