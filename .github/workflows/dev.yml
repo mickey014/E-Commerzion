@@ -58,11 +58,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-          
+
       - name: Create Docker Network
         run: docker network create e-commerzion-network || true
-        
-        
+
       - name: Run PostgreSQL for User Service
         run: |
           docker run -d --name user-service-db --network e-commerzion-network \
@@ -78,24 +77,26 @@ jobs:
           -e POSTGRES_PASSWORD=test \
           -e POSTGRES_DB=seller_service \
           -p 5433:5432 postgres:14-alpine
-          
-      - name: Wait for User Service DB to Start
+
+      - name: Wait for PostgreSQL to Start
         run: |
-          echo "Waiting for user-service-db ..."
+          echo "Waiting for user-service-db..."
           until docker exec user-service-db pg_isready -U postgres -d user_service; do
             echo "Waiting for user_service database..."
             sleep 5
           done
-          echo "User Service database is ready."
-
-      - name: Wait for Seller Service DB to Start
-        run: |
-          echo "Waiting for seller-service-db ..."
+          
+          echo "Waiting for seller-service-db..."
           until docker exec seller-service-db pg_isready -U postgres -d seller_service; do
             echo "Waiting for seller_service database..."
             sleep 5
           done
-          echo "Seller Service database is ready."
+
+          echo "PostgreSQL databases are ready."
+
+      - name: Build User Service
+        run: mvn -B clean verify --projects user-service
+        working-directory: user-product-service
 
       - name: Pull and Run User Service App
         run: |
@@ -104,7 +105,7 @@ jobs:
           --env SPRING_DATASOURCE_USERNAME=postgres \
           --env SPRING_DATASOURCE_PASSWORD=test \
           kirk006/e-commerzion-user-service-app:latest
-
+ 
       - name: Create a User in User Service
         run: |
           echo "Creating a user in user-service-app..."
@@ -116,17 +117,17 @@ jobs:
                    "password": "test",
                    "confirmPassword": "test"
                }'
-
-      - name: Wait for User Service App to Start
-        run: |
+               
+       - name: Wait for User Service App to Start
+         run: |
           echo "Waiting for user-service-app to start..."
           until curl -s http://localhost:8001/api/v1/users/1; do
             echo "Waiting for user-service-app..."
             sleep 5
           done
-          echo "\nuser-service-app is running."
+          echo "user-service-app is running."
 
-      - name: Run Integration Tests for Seller Service
+      - name: Run Integration Tests
         run: mvn -B clean verify --projects seller-service
         working-directory: user-product-service
 
