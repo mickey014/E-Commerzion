@@ -87,13 +87,16 @@ jobs:
             echo "Waiting for PostgreSQL to be ready..."
             sleep 5
           done
-      - name: Pull user-service image
+      - name: Pull user-service-db image
+        run: docker pull kirk006/e-commerzion-user-service-db:latest
+      - name: Pull user-service-app image
         run: docker pull kirk006/e-commerzion-user-service-app:latest
       - name: Run user-service container
         run: |
-          docker run -d --name user-service --network=host -p 8001:8001 kirk006/e-commerzion-user-service-app:latest
+          docker run -d --name user-service-db --network=host -p 5432:5432 kirk006/e-commerzion-user-service-db:latest
+          docker run -d --name user-service-app --network=host -p 8001:8001 kirk006/e-commerzion-user-service-app:latest
         env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/user_service
+          SPRING_DATASOURCE_URL: jdbc:postgresql://user-service-db:5432/user_service
           SPRING_DATASOURCE_USERNAME: postgres
           SPRING_DATASOURCE_PASSWORD: test
       - name: Configure Feign Client for user-service
