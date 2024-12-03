@@ -107,4 +107,4 @@ jobs:
       # Step 5: Build Seller Service
       - name: Build Seller Service
         run: mvn -B clean verify --projects seller-service
-        working-directory: seller-product-service
+        working-directory: user-product-service
