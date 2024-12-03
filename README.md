@@ -1,8 +1,24 @@
 ## E-Commerzion Project
 
-## Docker command
-  docker compose -f docker-compose.prod.yml up -d (Run The Production Engine)
-  docker compose -f docker-compose.prod.yml down (Stop The Production Engine)
+## Docker commands
+
+	Run The Production Engine
+	```
+	docker compose -f docker-compose.prod.yml up -d
+	```
   
-  docker compose up -d (Run The Development Engine)
-  docker compose down (Stop The Development Engine)
+	Stop The Production Engine
+	```
+	docker compose -f docker-compose.prod.yml down
+  ```
+	
+	Run The Development Engine
+	```
+	docker compose up -d 
+	```
+  
+	Stop The Development Engine
+	```
+	docker compose down
+	```
+   
