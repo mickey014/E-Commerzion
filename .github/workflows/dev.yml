@@ -44,6 +44,14 @@ jobs:
       - name: Build User Service
         run: mvn -B clean verify --projects user-service
         working-directory: user-product-service
+        
+      - name: Clean Up Docker Containers
+        run: |
+          docker stop user-service-app user-service-db || true
+          docker rm user-service-app user-service-db || true
+
+      - name: Clean Up Docker Network
+        run: docker network rm e-commerzion-network || true
 
   seller-service:
     runs-on: ubuntu-latest
@@ -127,12 +135,7 @@ jobs:
       - name: Run Integration Tests
         run: mvn -B clean verify --projects seller-service
         working-directory: user-product-service
-
-  cleanup:
-    runs-on: ubuntu-latest
-    needs: [user-service, seller-service]  # Wait for previous jobs to finish
-
-    steps:
+        
       - name: Clean Up Docker Containers
         run: |
           docker stop user-service-app user-service-db seller-service-db || true
