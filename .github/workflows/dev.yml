@@ -61,6 +61,15 @@ jobs:
           
       - name: Create Docker Network
         run: docker network create e-commerzion-network || true
+        
+        
+      - name: Run PostgreSQL for User Service
+        run: |
+          docker run -d --name user-service-db --network e-commerzion-network \
+          -e POSTGRES_USER=postgres \
+          -e POSTGRES_PASSWORD=test \
+          -e POSTGRES_DB=user_service \
+          -p 5432:5432 kirk006/e-commerzion-user-service-db:latest
 
       - name: Run PostgreSQL for Seller Service
         run: |
@@ -69,6 +78,15 @@ jobs:
           -e POSTGRES_PASSWORD=test \
           -e POSTGRES_DB=seller_service \
           -p 5433:5432 postgres:14-alpine
+          
+      - name: Wait for User Service DB to Start
+        run: |
+          echo "Waiting for user-service-db ..."
+          until docker exec user-service-db pg_isready -U postgres -d user_service; do
+            echo "Waiting for user_service database..."
+            sleep 5
+          done
+          echo "User Service database is ready."
 
       - name: Wait for Seller Service DB to Start
         run: |
