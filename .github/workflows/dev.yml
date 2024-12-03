@@ -35,30 +35,25 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      - name: Configure database connection
+
+      - name: Test Database Connectivity
         run: |
-          echo "SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/user_service" >> $GITHUB_ENV
-          echo "SPRING_DATASOURCE_USERNAME=postgres" >> $GITHUB_ENV
-          echo "SPRING_DATASOURCE_PASSWORD=test" >> $GITHUB_ENV
-      - name: Wait for PostgreSQL to be ready
-        run: |
-          until pg_isready -h localhost -p 5432 -U postgres; do
-            echo "Waiting for PostgreSQL to be ready..."
+          echo "Testing connection to user-service database..."
+          until pg_isready -h localhost -p 5432 -U postgres -d user_service; do
+            echo "Waiting for PostgreSQL user-service database to be ready..."
             sleep 5
           done
+
       - name: Build User Service
         run: mvn -B clean verify --projects user-service
         working-directory: user-product-service
-      - name: Clean up Docker containers
-        run: |
-          docker stop user-service-db user-service-app || true
-          docker rm user-service-db user-service-app || true
 
   seller-service:
     runs-on: ubuntu-latest
@@ -89,52 +84,55 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
+
       - name: Configure Seller Service database connection
         run: |
           echo "SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5433/seller_service" >> $GITHUB_ENV
           echo "SPRING_DATASOURCE_USERNAME=postgres" >> $GITHUB_ENV
           echo "SPRING_DATASOURCE_PASSWORD=test" >> $GITHUB_ENV
-      - name: Run user-service-db container on the same network
+
+      - name: Run user-service-db container on a custom network
         run: |
           docker network create e-commerzion-network || true
-          docker run -d --name user-service-db --network e-commerzion-network -p 5432:5432 kirk006/e-commerzion-user-service-db:latest
-      - name: Configure user_service database connection
-        run: |
-          echo "SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/user_service" >> $GITHUB_ENV
-          echo "SPRING_DATASOURCE_USERNAME=postgres" >> $GITHUB_ENV
-          echo "SPRING_DATASOURCE_PASSWORD=test" >> $GITHUB_ENV
-      - name: Wait for user-service-db to be ready
+          docker run -d --name user-service-db --network e-commerzion-network -p 5432:5432 \
+            -e POSTGRES_USER=postgres \
+            -e POSTGRES_PASSWORD=test \
+            -e POSTGRES_DB=user_service \
+            postgres:14-alpine
+
+      - name: Test user-service-db Connectivity
         run: |
           until pg_isready -h localhost -p 5432 -U postgres; do
             echo "Waiting for user-service-db to be ready..."
             sleep 5
           done
+
       - name: Pull user-service-app image
         run: docker pull kirk006/e-commerzion-user-service-app:latest
-      - name: Run user-service-app container on the same network
+
+      - name: Run user-service-app container on the custom network
         run: |
-          docker run -d --name user-service-app --network e-commerzion-network -p 8001:8001 kirk006/e-commerzion-user-service-app:latest
-      - name: Wait for user-service-app to be ready
+          docker run -d --name user-service-app --network e-commerzion-network -p 8001:8001 \
+            kirk006/e-commerzion-user-service-app:latest
+
+      - name: Test user-service-app Connectivity
         run: |
           until curl -s http://localhost:8001/api/v1/users/1; do
             echo "Waiting for user-service-app to be ready..."
             sleep 10
           done
-      - name: Wait for seller-service to be ready
-        run: |
-          until curl -s http://localhost:8002/api/v1/seller/health; do
-            echo "Waiting for seller-service to be ready..."
-            sleep 10
-          done
+
       - name: Build Seller Service
         run: mvn -B clean verify --projects seller-service
         working-directory: user-product-service
+
       - name: Clean up Docker containers
         run: |
           docker stop user-service-db user-service-app || true
