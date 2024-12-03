@@ -30,7 +30,7 @@ jobs:
           -e POSTGRES_USER=postgres \
           -e POSTGRES_PASSWORD=test \
           -e POSTGRES_DB=user_service \
-          -p 5432:5432 postgres:14-alpine
+          -p 5432:5432 kirk006/e-commerzion-user-service-db:latest
 
       - name: Run PostgreSQL for Seller Service
         run: |
