@@ -90,9 +90,6 @@ jobs:
           docker network create ecommerzion-network || true  # Ensure the network exists
           docker run -d --name user-service-db --network=ecommerzion-network -p 5432:5432 kirk006/e-commerzion-user-service-db:latest
           docker run -d --name user-service-app --network=ecommerzion-network -p 8001:8001 kirk006/e-commerzion-user-service-app:latest
-          echo "SPRING_DATASOURCE_URL=jdbc:postgresql://user-service-db:5432/user_service" >> $GITHUB_ENV
-          echo "SPRING_DATASOURCE_USERNAME=postgres" >> $GITHUB_ENV
-          echo "SPRING_DATASOURCE_PASSWORD=test" >> $GITHUB_ENV
       - name: Configure database connection
         run: |
           echo "SPRING_DATASOURCE_URL=jdbc:postgresql://user-service-db:5432/user_service" >> $GITHUB_ENV
