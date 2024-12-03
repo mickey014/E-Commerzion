@@ -94,13 +94,13 @@ jobs:
           
           echo "PostgreSQL databases are ready."
 
-      - name: Pull and Run User Service App
+      - name: Run PostgreSQL for User Service
         run: |
-          docker run -d --name user-service-app --network e-commerzion-network -p 8001:8001 \
-          --env SPRING_DATASOURCE_URL=jdbc:postgresql://user-service-db:5432/user_service \
-          --env SPRING_DATASOURCE_USERNAME=postgres \
-          --env SPRING_DATASOURCE_PASSWORD=test \
-          kirk006/e-commerzion-user-service-app:latest
+          docker run -d --name user-service-db --network e-commerzion-network \
+          -e POSTGRES_USER=postgres \
+          -e POSTGRES_PASSWORD=test \
+          -e POSTGRES_DB=user_service \
+          -p 5432:5432 kirk006/e-commerzion-user-service-db:latest
           
       - name: Create a User in User Service
         run: |
