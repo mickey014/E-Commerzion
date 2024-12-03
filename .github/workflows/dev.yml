@@ -96,6 +96,9 @@ jobs:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/user_service
           SPRING_DATASOURCE_USERNAME: postgres
           SPRING_DATASOURCE_PASSWORD: test
+      - name: Configure Feign Client for user-service
+        run: |
+          echo "external.api.userService.hostUrl=http://user-service:8001/api/v1" >> $GITHUB_ENV
       - name: Build Seller Service
         run: mvn -B clean verify --projects seller-service
         working-directory: user-product-service
