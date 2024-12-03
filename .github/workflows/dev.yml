@@ -26,34 +26,25 @@ jobs:
           --health-retries=5
 
     steps:
-      # Step 1: Checkout Code
       - name: Checkout Code
         uses: actions/checkout@v4
-
-      # Step 2: Set up JDK 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-
-      # Step 3: Configure Database URL
       - name: Configure database connection
         run: |
           echo "SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/user_service" >> $GITHUB_ENV
           echo "SPRING_DATASOURCE_USERNAME=postgres" >> $GITHUB_ENV
           echo "SPRING_DATASOURCE_PASSWORD=test" >> $GITHUB_ENV
-
-      # Step 4: Wait for PostgreSQL
       - name: Wait for PostgreSQL to be ready
         run: |
           until pg_isready -h localhost -p 5432 -U postgres; do
             echo "Waiting for PostgreSQL to be ready..."
             sleep 5
           done
-
-      # Step 5: Build User Service
       - name: Build User Service
         run: mvn -B clean verify --projects user-service
         working-directory: user-product-service
@@ -77,37 +68,27 @@ jobs:
           --health-retries=5
 
     steps:
-      # Step 1: Checkout Code
       - name: Checkout Code
         uses: actions/checkout@v4
-
-      # Step 2: Set up JDK 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-
-      # Step 3: Configure Database URL
       - name: Configure Seller Service database connection
         run: |
           echo "SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5433/seller_service" >> $GITHUB_ENV
           echo "SPRING_DATASOURCE_USERNAME=postgres" >> $GITHUB_ENV
           echo "SPRING_DATASOURCE_PASSWORD=test" >> $GITHUB_ENV
-
-      # Step 4: Wait for PostgreSQL
       - name: Wait for PostgreSQL to be ready
         run: |
           until pg_isready -h localhost -p 5433 -U postgres; do
             echo "Waiting for PostgreSQL to be ready..."
             sleep 5
           done
-          
-      # Step 5: Pull and Run user-service container
       - name: Pull user-service image
         run: docker pull kirk006/e-commerzion-user-service-app:latest
-
       - name: Run user-service container
         run: |
           docker run -d --name user-service --network=host -p 8001:8001 kirk006/e-commerzion-user-service-app:latest
@@ -115,13 +96,9 @@ jobs:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/user_service
           SPRING_DATASOURCE_USERNAME: postgres
           SPRING_DATASOURCE_PASSWORD: test
-          
-      # Step 6: Configure Feign Client for user-service
       - name: Configure Feign Client for user-service
         run: |
           echo "external.api.userService.hostUrl=http://user-service:8001/api/v1" >> $GITHUB_ENV
-
-      # Step 7: Build Seller Service
       - name: Build Seller Service
         run: mvn -B clean verify --projects seller-service
         working-directory: user-product-service
