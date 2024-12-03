@@ -10,6 +10,13 @@ jobs:
   user-service:
     runs-on: ubuntu-latest
 
+    env:
+      JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.13-11/x64
+      JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.13-11/x64
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/user_service
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: test
+
     services:
       postgres:
         image: postgres:14-alpine
@@ -56,6 +63,13 @@ jobs:
   seller-service:
     runs-on: ubuntu-latest
 
+    env:
+      JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.13-11/x64
+      JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.13-11/x64
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5433/seller_service
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: test
+
     services:
       postgres:
         image: postgres:14-alpine
@@ -64,7 +78,7 @@ jobs:
           POSTGRES_PASSWORD: test
           POSTGRES_DB: seller_service
         ports:
-          - "5433:5432"  # Adjusted port mapping
+          - "5433:5432"
         options: >-
           --health-cmd="pg_isready -U postgres -d seller_service"
           --health-interval=10s
