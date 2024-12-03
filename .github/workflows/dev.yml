@@ -85,26 +85,25 @@ jobs:
         run: docker pull kirk006/e-commerzion-user-service-db:latest
       - name: Pull user-service-app image
         run: docker pull kirk006/e-commerzion-user-service-app:latest
-      - name: Run user-service container
+      - name: Run user-service containers
         run: |
-          docker network create ecommerzion-network || true  # Ensure the network exists
-          docker run -d --name user-service-db --network=ecommerzion-network -p 5432:5432 kirk006/e-commerzion-user-service-db:latest
-          docker run -d --name user-service-app --network=ecommerzion-network -p 8001:8001 kirk006/e-commerzion-user-service-app:latest
+          docker run -d --name user-service-db --network=host -p 5432:5432 kirk006/e-commerzion-user-service-db:latest
+          docker run -d --name user-service-app --network=host -p 8001:8001 kirk006/e-commerzion-user-service-app:latest
       - name: Wait for user-service-db to be ready
         run: |
-          until pg_isready -U user-service-db -d user_service; do
-            echo "Waiting for PostgreSQL to be ready..."
+          until pg_isready -h localhost -p 5432 -U postgres; do
+            echo "Waiting for user-service-db to be ready..."
             sleep 5
           done
       - name: Wait for user-service-app to be ready
         run: |
-          until curl -s http://user-service-app:8001/api/v1/users/1; do
+          until curl -s http://localhost:8001/api/v1/users/1; do
             echo "Waiting for user-service-app to be ready..."
             sleep 10
           done
       - name: Configure Feign Client for user-service
         run: |
-          echo "external.api.userService.hostUrl=http://user-service-app:8001/api/v1" >> $GITHUB_ENV
+          echo "external.api.userService.hostUrl=http://localhost:8001/api/v1" >> $GITHUB_ENV
       - name: Build Seller Service
         run: mvn -B clean verify --projects seller-service
         working-directory: user-product-service
