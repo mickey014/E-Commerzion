@@ -93,6 +93,17 @@ jobs:
           echo "SPRING_DATASOURCE_URL=jdbc:postgresql://user-service-db:5432/user_service" >> $GITHUB_ENV
           echo "SPRING_DATASOURCE_USERNAME=postgres" >> $GITHUB_ENV
           echo "SPRING_DATASOURCE_PASSWORD=test" >> $GITHUB_ENV
+      - name: Configure database connection
+        run: |
+          echo "SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/user_service" >> $GITHUB_ENV
+          echo "SPRING_DATASOURCE_USERNAME=postgres" >> $GITHUB_ENV
+          echo "SPRING_DATASOURCE_PASSWORD=test" >> $GITHUB_ENV
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          until pg_isready -h localhost -p 5432 -U postgres; do
+            echo "Waiting for PostgreSQL to be ready..."
+            sleep 5
+          done
       - name: Configure Feign Client for user-service
         run: |
           echo "external.api.userService.hostUrl=http://user-service-app:8001/api/v1" >> $GITHUB_ENV
