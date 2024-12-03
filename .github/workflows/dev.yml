@@ -93,6 +93,9 @@ jobs:
         run: |
           docker run -d --name user-service-db --network=host -p 5432:5432 kirk006/e-commerzion-user-service-db:latest
           docker run -d --name user-service-app --network=host -p 8001:8001 kirk006/e-commerzion-user-service-app:latest
+          echo "SPRING_DATASOURCE_USER_URL=jdbc:postgresql://localhost:5432/user_service" >> $GITHUB_ENV
+          echo "SPRING_DATASOURCE_USER_USERNAME=postgres" >> $GITHUB_ENV
+          echo "SPRING_DATASOURCE_USER_PASSWORD=test" >> $GITHUB_ENV
       - name: Wait for user-service-db to be ready
         run: |
           until pg_isready -h localhost -p 5432 -U postgres; do
