@@ -10,25 +10,114 @@ jobs:
   user-service:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: user_service
+        ports:
+          - "5432:5432"
+        options: >-
+          --health-cmd="pg_isready -U postgres -d user_service"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-        
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-          
+      - name: Configure database connection
+        run: |
+          echo "SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/user_service" >> $GITHUB_ENV
+          echo "SPRING_DATASOURCE_USERNAME=postgres" >> $GITHUB_ENV
+          echo "SPRING_DATASOURCE_PASSWORD=test" >> $GITHUB_ENV
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          until pg_isready -h localhost -p 5432 -U postgres; do
+            echo "Waiting for PostgreSQL to be ready..."
+            sleep 5
+          done
       - name: Build User Service
-        run: mvn clean install -DskipTests --projects user-service
+        run: mvn -B clean verify --projects user-service
         working-directory: user-product-service
-        
-      - name: Run tests
-        run: mvn test --projects user-service
-        working-directory: user-product-service
+      - name: Clean up Docker containers
+        run: |
+          docker stop user-service-db user-service-app || true
+          docker rm user-service-db user-service-app || true
 
-      - name: Package the application
-        run: mvn package -DskipTests --projects user-service
+  seller-service:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: seller_service
+        ports:
+          - "5433:5432"  # Adjusted port mapping
+        options: >-
+          --health-cmd="pg_isready -U postgres -d seller_service"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+      - name: Configure Seller Service database connection
+        run: |
+          echo "SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5433/seller_service" >> $GITHUB_ENV
+          echo "SPRING_DATASOURCE_USERNAME=postgres" >> $GITHUB_ENV
+          echo "SPRING_DATASOURCE_PASSWORD=test" >> $GITHUB_ENV
+      - name: Pull user-service-db image
+        run: docker pull kirk006/e-commerzion-user-service-db:latest
+      - name: Pull user-service-app image
+        run: docker pull kirk006/e-commerzion-user-service-app:latest
+      - name: Run user-service containers
+        run: |
+          docker run -d --name user-service-db --network=host -p 5432:5432 kirk006/e-commerzion-user-service-db:latest
+          docker run -d --name user-service-app --network=host -p 8001:8001 kirk006/e-commerzion-user-service-app:latest
+      - name: Wait for user-service-db to be ready
+        run: |
+          until pg_isready -h localhost -p 5432 -U postgres; do
+            echo "Waiting for user-service-db to be ready..."
+            sleep 5
+          done
+      - name: Wait for user-service-app to be ready
+        run: |
+          until curl -s http://localhost:8001/api/v1/users/1; do
+            echo "Waiting for user-service-app to be ready..."
+            sleep 10
+          done
+      - name: Configure Feign Client for user-service
+        run: |
+          echo "external.api.userService.hostUrl=http://localhost:8001/api/v1" >> $GITHUB_ENV
+      - name: Wait for seller-service to be ready
+        run: |
+          until curl -s http://localhost:8002/api/v1/seller/health; do
+            echo "Waiting for seller-service to be ready..."
+            sleep 10
+          done
+      - name: Build Seller Service
+        run: mvn -B clean verify --projects seller-service
         working-directory: user-product-service
+      - name: Clean up Docker containers
+        run: |
+          docker stop user-service-db user-service-app || true
+          docker rm user-service-db user-service-app || true
