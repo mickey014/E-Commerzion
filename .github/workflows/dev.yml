@@ -95,9 +95,9 @@ jobs:
                    "password": "test",
                    "confirmPassword": "test"
                }'
-               
-       - name: Wait for User Service App to Start
-         run: |
+
+      - name: Wait for User Service App to Start
+        run: |
           echo "Waiting for user-service-app to start..."
           until curl -s http://localhost:8001/api/v1/users/1; do
             echo "Waiting for user-service-app..."
