@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+    user-service-db:
+        image: postgres:14-alpine
+        container_name: user-service-db
+        environment:
+          - POSTGRES_PASSWORD=test
+          - POSTGRES_DB=user_service
+          - POSTGRES_LISTEN_ADDRESSES='*'   # Allow connections from any IP address
+        ports:
+          - "5432:5432"  # Port for user_service database
+        networks:
+          - postgres-network
+        volumes:
+          - user-service-data:/var/lib/postgresql/data
+        restart: unless-stopped
+          
+    seller-service-db:
+        image: postgres:14-alpine
+        container_name: seller-service-db
+        environment:
+         - POSTGRES_PASSWORD=test
+         - POSTGRES_DB=seller_service
+        ports:
+         - "5433:5432"  # Port for seller_service database
+        networks:
+         - postgres-network
+        volumes:
+         - seller-service-data:/var/lib/postgresql/data
+        restart: unless-stopped
+
+    product-service-db:
+        image: postgres:14-alpine
+        container_name: product-service-db
+        environment:
+         - POSTGRES_PASSWORD=test
+         - POSTGRES_DB=product_service
+        ports:
+         - "5434:5432"  # Port for product_service database
+        networks:
+         - postgres-network
+        volumes:
+         - product-service-data:/var/lib/postgresql/data
+        restart: unless-stopped
+     
+    order-service-db:
+        image: postgres:14-alpine
+        container_name: order-service-db
+        environment:
+         - POSTGRES_PASSWORD=test
+         - POSTGRES_DB=order_service
+        ports:
+         - "5435:5432"  # Port for order_service database
+        networks:
+         - postgres-network
+        volumes:
+         - order-service-data:/var/lib/postgresql/data
+        restart: unless-stopped
+         
+    order-items-service-db:
+        image: postgres:14-alpine
+        container_name: order-items-service-db
+        environment:
+         - POSTGRES_PASSWORD=test
+         - POSTGRES_DB=order_items_service
+        ports:
+         - "5436:5432"  # Port for order_items_service database
+        networks:
+         - postgres-network
+        volumes:
+         - order-items-service-data:/var/lib/postgresql/data
+        restart: unless-stopped
+    
+    rabbitmq:
+        image: rabbitmq:3.9.11-management-alpine
+        container_name: rabbitmq
+        ports:
+          - "5672:5672"  # RabbitMQ default port for AMQP protocol
+          - "15672:15672" # RabbitMQ management plugin port (web UI)
+        environment:
+          - RABBITMQ_DEFAULT_USER=admin
+          - RABBITMQ_DEFAULT_PASS=admin
+        volumes:
+          - rabbitmq_data:/var/lib/rabbitmq  # Persistent storage for RabbitMQ data
+        networks:
+          - rabbitmq_network
+        restart: unless-stopped
+
+networks:
+    postgres-network:
+        driver: bridge
+    rabbitmq_network:
+        driver: bridge
+
+volumes:
+    user-service-data:
+        driver: local
+    seller-service-data:
+        driver: local
+    product-service-data:
+        driver: local
+    order-service-data:
+        driver: local
+    order-items-service-data:
+        driver: local
+    rabbitmq_data:
+        driver: local
