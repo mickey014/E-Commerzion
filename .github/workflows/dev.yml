@@ -48,9 +48,14 @@ jobs:
       - name: Build User Service
         run: mvn -B clean verify --projects user-service
         working-directory: user-product-service
+      - name: Clean up Docker containers
+        run: |
+          docker stop user-service-db user-service-app || true
+          docker rm user-service-db user-service-app || true
 
   seller-service:
     runs-on: ubuntu-latest
+    needs: user-service  # Ensure user-service job finishes first
 
     services:
       postgres:
@@ -104,6 +109,16 @@ jobs:
       - name: Configure Feign Client for user-service
         run: |
           echo "external.api.userService.hostUrl=http://localhost:8001/api/v1" >> $GITHUB_ENV
+      - name: Wait for seller-service to be ready
+        run: |
+          until curl -s http://localhost:8002/api/v1/seller/health; do
+            echo "Waiting for seller-service to be ready..."
+            sleep 10
+          done
       - name: Build Seller Service
         run: mvn -B clean verify --projects seller-service
         working-directory: user-product-service
+      - name: Clean up Docker containers
+        run: |
+          docker stop user-service-db user-service-app || true
+          docker rm user-service-db user-service-app || true
