@@ -7,7 +7,7 @@ on:
     branches: [ "dev" ]
 
 jobs:
-  e-commerzion-services:
+  user-service:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,7 +26,53 @@ jobs:
 
       - name: Run PostgreSQL for User Service
         run: |
-          docker run -d --name postgres-user-service --network e-commerzion-network \
+          docker run -d --name user-service-db --network e-commerzion-network \
+          -e POSTGRES_USER=postgres \
+          -e POSTGRES_PASSWORD=test \
+          -e POSTGRES_DB=user_service \
+          -p 5432:5432 kirk006/e-commerzion-user-service-db:latest
+
+      - name: Wait for User Service DB to Start
+        run: |
+          echo "Waiting for user-service-db ..."
+          until docker exec user-service-db pg_isready -U postgres -d user_service; do
+            echo "Waiting for user_service database..."
+            sleep 5
+          done
+          echo "User Service database is ready."
+
+      - name: Build User Service
+        run: mvn -B clean verify --projects user-service
+        working-directory: user-product-service
+        
+      - name: Clean Up Docker Containers
+        run: |
+          docker stop user-service-app user-service-db || true
+          docker rm user-service-app user-service-db || true
+
+      - name: Clean Up Docker Network
+        run: docker network rm e-commerzion-network || true
+
+  seller-service:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Create Docker Network
+        run: docker network create e-commerzion-network || true
+
+      - name: Run PostgreSQL for User Service
+        run: |
+          docker run -d --name user-service-db --network e-commerzion-network \
           -e POSTGRES_USER=postgres \
           -e POSTGRES_PASSWORD=test \
           -e POSTGRES_DB=user_service \
@@ -34,40 +80,37 @@ jobs:
 
       - name: Run PostgreSQL for Seller Service
         run: |
-          docker run -d --name postgres-seller-service --network e-commerzion-network \
+          docker run -d --name seller-service-db --network e-commerzion-network \
           -e POSTGRES_USER=postgres \
           -e POSTGRES_PASSWORD=test \
           -e POSTGRES_DB=seller_service \
-          -p 5433:5432 postgres:14-alpine
+          -p 5433:5432 kirk006/e-commerzion-seller-service-db
 
-      - name: Wait for PostgreSQL to Start
+      - name: Wait for PostgreSQL Databases to Start
         run: |
-          echo "Waiting for postgres-user-service..."
-          until docker exec postgres-user-service pg_isready -U postgres -d user_service; do
+          echo "Waiting for user-service-db..."
+          until docker exec user-service-db pg_isready -U postgres -d user_service; do
             echo "Waiting for user_service database..."
             sleep 5
-          done
+          done &
           
-          echo "Waiting for postgres-seller-service..."
-          until docker exec postgres-seller-service pg_isready -U postgres -d seller_service; do
+          echo "Waiting for seller-service-db..."
+          until docker exec seller-service-db pg_isready -U postgres -d seller_service; do
             echo "Waiting for seller_service database..."
             sleep 5
-          done
-
+          done &
+          
+          wait
           echo "PostgreSQL databases are ready."
-
-      - name: Build User Service
-        run: mvn -B clean verify --projects user-service
-        working-directory: user-product-service
 
       - name: Pull and Run User Service App
         run: |
           docker run -d --name user-service-app --network e-commerzion-network -p 8001:8001 \
-          --env SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-user-service:5432/user_service \
+          --env SPRING_DATASOURCE_URL=jdbc:postgresql://user-service-db:5432/user_service \
           --env SPRING_DATASOURCE_USERNAME=postgres \
           --env SPRING_DATASOURCE_PASSWORD=test \
           kirk006/e-commerzion-user-service-app:latest
-
+          
       - name: Wait for User Service App to Start
         run: |
           echo "Waiting for user-service-app to start..."
@@ -75,8 +118,8 @@ jobs:
             echo "Waiting for user-service-app..."
             sleep 5
           done
-          echo "\nuser-service-app is running."
-
+          echo "user-service-app is running."
+          
       - name: Create a User in User Service
         run: |
           echo "Creating a user in user-service-app..."
@@ -87,17 +130,107 @@ jobs:
                    "username": "john_doe@gmail.com",
                    "password": "test",
                    "confirmPassword": "test"
-               }'
+               }'      
 
       - name: Run Integration Tests
         run: mvn -B clean verify --projects seller-service
         working-directory: user-product-service
-
+        
       - name: Clean Up Docker Containers
         run: |
-          docker stop user-service-app postgres-user-service postgres-seller-service || true
-          docker rm user-service-app postgres-user-service postgres-seller-service || true
+          docker stop user-service-app user-service-db seller-service-db || true
+          docker rm user-service-app user-service-db seller-service-db || true
 
       - name: Clean Up Docker Network
         run: docker network rm e-commerzion-network || true
-    
+
+  product-service:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Create Docker Network
+        run: docker network create e-commerzion-network || true
+
+      - name: Run PostgreSQL for User Service
+        run: |
+          docker run -d --name user-service-db --network e-commerzion-network \
+          -e POSTGRES_USER=postgres \
+          -e POSTGRES_PASSWORD=test \
+          -e POSTGRES_DB=user_service \
+          -p 5432:5432 kirk006/e-commerzion-user-service-db:latest
+
+      - name: Run PostgreSQL for Seller Service
+        run: |
+          docker run -d --name seller-service-db --network e-commerzion-network \
+          -e POSTGRES_USER=postgres \
+          -e POSTGRES_PASSWORD=test \
+          -e POSTGRES_DB=seller_service \
+          -p 5433:5432 kirk006/e-commerzion-seller-service-db
+
+      - name: Wait for PostgreSQL Databases to Start
+        run: |
+          echo "Waiting for user-service-db..."
+          until docker exec user-service-db pg_isready -U postgres -d user_service; do
+            echo "Waiting for user_service database..."
+            sleep 5
+          done &
+          
+          echo "Waiting for seller-service-db..."
+          until docker exec seller-service-db pg_isready -U postgres -d seller_service; do
+            echo "Waiting for seller_service database..."
+            sleep 5
+          done &
+          
+          wait
+          echo "PostgreSQL databases are ready."
+
+      - name: Pull and Run User Service App
+        run: |
+          docker run -d --name user-service-app --network e-commerzion-network -p 8001:8001 \
+          --env SPRING_DATASOURCE_URL=jdbc:postgresql://user-service-db:5432/user_service \
+          --env SPRING_DATASOURCE_USERNAME=postgres \
+          --env SPRING_DATASOURCE_PASSWORD=test \
+          kirk006/e-commerzion-user-service-app:latest
+          
+      - name: Wait for User Service App to Start
+        run: |
+          echo "Waiting for user-service-app to start..."
+          until curl -s http://localhost:8001/api/v1/users/1; do
+            echo "Waiting for user-service-app..."
+            sleep 5
+          done
+          echo "user-service-app is running."
+          
+      - name: Create a User in User Service
+        run: |
+          echo "Creating a user in user-service-app..."
+          curl -X POST http://localhost:8001/api/v1/users/register \
+               -H "Content-Type: application/json" \
+               -d '{
+                   "name": "Johzzzn Doe",
+                   "username": "john_doe@gmail.com",
+                   "password": "test",
+                   "confirmPassword": "test"
+               }'      
+
+      - name: Run Integration Tests
+        run: mvn -B clean verify --projects seller-service
+        working-directory: user-product-service
+        
+      - name: Clean Up Docker Containers
+        run: |
+          docker stop user-service-app user-service-db seller-service-db || true
+          docker rm user-service-app user-service-db seller-service-db || true
+
+      - name: Clean Up Docker Network
+        run: docker network rm e-commerzion-network || true
