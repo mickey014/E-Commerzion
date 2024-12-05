@@ -35,6 +35,11 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+          
+      - name: Tag and Push RabbitMQ Image
+        run: |
+          docker tag rabbitmq:3.9.11-management-alpine ${{ secrets.DOCKER_USERNAME }}/e-commerzion-rabbitmq
+          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-rabbitmq
 
       - name: Pull postgres:14-alpine
         run: docker pull postgres:14-alpine
@@ -103,8 +108,3 @@ jobs:
           file: user-product-service/order-items-service/Dockerfile.orderItems
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-items-service-app:latest
-
-      - name: Tag and Push RabbitMq Image
-        run: |
-          docker tag rabbitmq:3.9.11-management-alpine ${{ secrets.DOCKER_USERNAME }}/e-commerzion-rabbitmq
-          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-rabbitmq
