@@ -147,7 +147,7 @@ services:
     ports:
       - "8401:8401"  # Expose application on localhost
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://order-items-service-db:5432/order_service
+      SPRING_DATASOURCE_URL: jdbc:postgresql://order-items-service-db:5432/order_items_service
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: test
     depends_on:
