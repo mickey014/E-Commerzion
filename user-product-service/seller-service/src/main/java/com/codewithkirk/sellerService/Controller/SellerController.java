@@ -77,7 +77,7 @@ public class SellerController {
 
     }
 
-    @GetMapping("/sellers/{userId}/{sellerId}")
+    @GetMapping("/sellers/user/{userId}/seller/{sellerId}")
     public ResponseEntity<?> getSellerByUserIdAndSellerId(
                                     @PathVariable Long userId,
                                     @PathVariable Long sellerId) {
@@ -108,7 +108,7 @@ public class SellerController {
 
     }
 
-    @PutMapping("/sellers/{userId}/{sellerId}")
+    @PutMapping("/sellers/user/{userId}/seller/{sellerId}")
     public ResponseEntity<?> updateSeller(
                                     @PathVariable Long userId,
                                     @PathVariable Long sellerId,

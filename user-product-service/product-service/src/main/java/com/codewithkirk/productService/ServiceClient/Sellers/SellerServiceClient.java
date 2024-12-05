@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
         fallback = SellerServiceClientFallback.class) // Define service name and URL (URL can be external or internal)
 public interface SellerServiceClient {
 
-    @GetMapping("/sellers/{userId}/{sellerId}")
+    @GetMapping("/sellers/user/{userId}/seller/{sellerId}")
     ProductDto getSellerByUserIdAndSellerId(@PathVariable("userId") Long userId,
                                             @PathVariable("sellerId") Long sellerId);
 }

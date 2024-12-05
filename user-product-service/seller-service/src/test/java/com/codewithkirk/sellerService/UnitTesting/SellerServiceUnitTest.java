@@ -89,19 +89,6 @@ public class SellerServiceUnitTest {
         // Mock UserServiceClient behavior
         when(userServiceClient.getUserById(sellerDto.getUserId())).thenReturn(null); // Mock a return value (adjust as needed)
 
-        // Build the new seller object using the Builder pattern
-        Sellers newSeller = Sellers.builder()
-                .sellerId(sellerId)
-                .userId(userId)
-                .sellerName(sellerName)
-                .storeName(storeName)
-                .email(email)
-                .phoneNumber(phoneNumber)
-                .location(location)
-                .photoUrl(photoUrl)
-                .status(status)
-                .build();
-
         // Stub the repository save method to return the saved seller
         when(sellerRepository.save(any(Sellers.class))).thenReturn(newSeller);
 
