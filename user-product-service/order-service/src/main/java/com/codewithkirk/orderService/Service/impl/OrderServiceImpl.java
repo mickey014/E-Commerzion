@@ -30,7 +30,7 @@ public class OrderServiceImpl implements OrderService {
 
     @RabbitListener(queues = ORDER_QUEUE)
     @Override
-    public Orders createOrder(OrderDto orderDto) {
+    public void createOrder(OrderDto orderDto) {
 
         // use this for testing
         String orderId = UUID.randomUUID().toString().substring(0,8);
@@ -65,7 +65,6 @@ public class OrderServiceImpl implements OrderService {
 
             orderRepository.save(order);
             logger.info("Order with ID {} saved successfully", orderDto.getOrderId());
-            return order;
         } catch (OrderException e) {
             logger.error("Order exception: {}", e.getMessage());
             throw e;
@@ -73,7 +72,6 @@ public class OrderServiceImpl implements OrderService {
             logger.error("Unexpected error occurred while processing order", e);
             throw new OrderException("Unexpected error occurred while creating order: " + e.getMessage());
         }
-
     }
 
     @Override

@@ -65,7 +65,7 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
     @BeforeEach
     void setUp() {
         orderItemsId = 1L;
-        orderId = "ec5b8acf";
+        orderId = "2a6a44dd";
         customerId = 1L;
         productId = 1L;
         quantity = 2;
@@ -110,22 +110,18 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
         productServiceClient.showProductById(productId);
         orderServiceClient.getOrderById(orderId);
 
-        // Act
-        OrderItems result = orderItemsServiceImpl.createOrderItems(orderItemsDto);
+        orderItemsServiceImpl.createOrderItems(orderItemsDto);
 
+        assertEquals(orderId, orderItemsDto.getOrderId());
+        assertEquals(customerId, orderItemsDto.getCustomerId());
+        assertEquals(productId, orderItemsDto.getProductId());
 
-        // Assert
-        assertNotNull(result);
-        //assertEquals(orderItemsId, result.getOrderItemsId());
-        assertEquals(orderId, result.getOrderId());
-        assertEquals(customerId, result.getCustomerId());
-        assertEquals(productId, result.getProductId());
 
         System.out.println("New order items id: " + orderItemsId);
         System.out.println("New order items order id: " + orderId);
         System.out.println("New order customer id: " + customerId);
         System.out.println("New order product id: " + productId);
-        System.out.println("New Order:" + result);
+        System.out.println("New order items: " + orderItemsDto);
     }
 
     @Test

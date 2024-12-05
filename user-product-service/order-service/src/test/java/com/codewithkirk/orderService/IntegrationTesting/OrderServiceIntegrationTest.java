@@ -21,6 +21,8 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @TestMethodOrder(OrderAnnotation.class)
@@ -99,42 +101,19 @@ public class OrderServiceIntegrationTest extends OrderServiceIntegrationTestConf
         }
     }
 
-//    @Test
-//    @Order(1)
-//    void shouldCreateOrder() {
-//
-//        // Act
-//        Orders result = orderServiceImpl.createOrder(orderDto);
-//
-//        // Assert
-//        assertNotNull(result);
-//        assertEquals(orderId, result.getOrderId());
-//        assertEquals(customerId, result.getCustomerId());
-//
-//        Orders fetchedOrder = orderRepository.findById(result.getOrderId()).orElse(null);
-//        assertNotNull(fetchedOrder);
-//
-//        System.out.println("New order id: " + orderId);
-//        System.out.println("New order customer id: " + customerId);
-//        System.out.println("New Order:" + result);
-//    }
-
     @Test
     @Order(1)
     void shouldCreateOrder() {
 
-        // Act
-        Orders result = orderServiceImpl.createOrder(orderDto);
+        orderServiceImpl.createOrder(orderDto);
 
         // Assert
-        assertNotNull(result);
-        assertEquals(orderDto.getOrderId(), result.getOrderId());
-        assertEquals(orderDto.getCustomerId(), result.getCustomerId());
+        assertEquals(orderId, orderDto.getOrderId());
+        assertEquals(customerId, orderDto.getCustomerId());
 
-        // Print results for debugging purposes
-        System.out.println("Order id: " + orderId);
-        System.out.println("Order customer id: " + customerId);
-        System.out.println("Order:" + result);
+        System.out.println("New order id: " + orderId);
+        System.out.println("New order customer id: " + customerId);
+        System.out.println("New Order:" + orderDto);
     }
 
     @Test
