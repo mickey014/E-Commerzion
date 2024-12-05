@@ -97,7 +97,7 @@ public class ProductServiceImp implements ProductService{
     }
 
     @Override
-    public void productPurchase(ProductPurchaseDto productPurchaseDto) {
+    public Products productPurchase(ProductPurchaseDto productPurchaseDto) {
         userServiceClient.getUserById(productPurchaseDto.getCustomerId());
         if(!isOrderServiceUp()) {
             throw new ProductOrderServiceUnavailableException("Order Service is down. Order processing aborted.");
@@ -149,6 +149,7 @@ public class ProductServiceImp implements ProductService{
             logger.error("Error occurred while sending messages to RabbitMQ", e);
             // Optionally, handle retry logic or alert the system
         }
+        return null;
     }
 
     public void updateProductStock(List<ProductItemsDto> orderItems) {
@@ -207,6 +208,22 @@ public class ProductServiceImp implements ProductService{
     }
 
     @Override
+    public Optional<Products> showProductById(Long productId) {
+        return Optional.ofNullable(productRepository.findById(productId)
+                .orElseThrow(() -> new ProductException("Product does not exists.")));
+    }
+
+    @Override
+    public List<Products> showAllProductsBySellerId(Long sellerId) {
+        List<Products> products = productRepository.findAllProductsBySellerId(sellerId);
+        if (products.isEmpty()) {
+            throw new ProductException("No orders found for this customer.");
+        }
+
+        return products;
+    }
+
+    @Override
     public Products updateProduct(Long userId, Long sellerId,
                                   Long productId, ProductDto productDto) {
         sellerServiceClient.getSellerByUserIdAndSellerId(userId, sellerId);
@@ -262,22 +279,6 @@ public class ProductServiceImp implements ProductService{
                                                         sellerId, productId)
                 .orElseThrow(() -> new ProductException("Product does not exists."));
         productRepository.delete(existingProducts);
-    }
-
-    @Override
-    public Optional<Products> showProductById(Long productId) {
-        return Optional.ofNullable(productRepository.findById(productId)
-                .orElseThrow(() -> new ProductException("Product does not exists.")));
-    }
-
-    @Override
-    public List<Products> showAllProductsBySellerId(Long sellerId) {
-        List<Products> products = productRepository.findAllProductsBySellerId(sellerId);
-        if (products.isEmpty()) {
-            throw new ProductException("No orders found for this customer.");
-        }
-
-        return products;
     }
 
     private BigDecimal calculateTotalAmount(List<OrderItemsDto> productItems) {

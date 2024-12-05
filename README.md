@@ -21,4 +21,9 @@
 	```
 	docker compose down
 	```
-   
+  rabbit mq bug if orders and order items service down 
+	the rabbit mq itself keeps looping
+
+
+	troubleshoot
+	- delete the queue to fix. 

@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderItemsDto implements Serializable {
-    private Long orderItemsId;
+    private String orderItemsId;
     private String orderId;
     private Long customerId;
     private Long productId;
