@@ -69,3 +69,45 @@ jobs:
           file: user-product-service/seller-service/Dockerfile.sellers
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-seller-service-app:latest
+          
+      - name: Tag and Push PostgreSQL Image for Product Service
+        run: |
+          docker tag postgres:14-alpine ${{ secrets.DOCKER_USERNAME }}/e-commerzion-product-service-db
+          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-product-service-db
+          
+      # Step 8: Build and Push Seller Service Docker Image
+      - name: Build and Push Product Service Docker Image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: user-product-service/product-service/Dockerfile.products
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-product-service-app:latest
+          
+      - name: Tag and Push PostgreSQL Image for Order Service
+        run: |
+          docker tag postgres:14-alpine ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-service-db
+          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-service-db
+          
+      # Step 8: Build and Push Seller Service Docker Image
+      - name: Build and Push Order Service Docker Image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: user-product-service/order-service/Dockerfile.orders
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-service-app:latest
+          
+      - name: Tag and Push PostgreSQL Image for Order Items Service
+        run: |
+          docker tag postgres:14-alpine ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-items-service-db
+          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-items-service-db
+          
+      # Step 8: Build and Push Seller Service Docker Image
+      - name: Build and Push Order Items Service Docker Image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: user-product-service/order-items-service/Dockerfile.ordersItems
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-items-service-app:latest
