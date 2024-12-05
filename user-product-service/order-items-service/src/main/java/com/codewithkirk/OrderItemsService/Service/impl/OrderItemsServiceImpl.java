@@ -33,7 +33,7 @@ public class OrderItemsServiceImpl implements OrderItemsService {
 
     @RabbitListener(queues = ORDER_ITEMS_QUEUE)
     @Override
-    public OrderItems createOrderItems(OrderItemsDto orderItemsDto) {
+    public void createOrderItems(OrderItemsDto orderItemsDto) {
 
         logger.info("Received order with ID: {}", orderItemsDto.getOrderId());
         String orderId = orderItemsDto.getOrderId();
@@ -57,7 +57,7 @@ public class OrderItemsServiceImpl implements OrderItemsService {
 
         orderItemsRepository.save(orderItems);
         orderServiceClient.getOrderById(orderId);
-        return orderItems;
+
     }
 
 

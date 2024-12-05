@@ -1,6 +1,10 @@
 package com.codewithkirk.productService.Configuration;
 
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.retry.RejectAndDontRequeueRecoverer;
+import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,7 +42,7 @@ public class RabbitConfig {
 
     @Bean
     public Queue inventoryQueue() {
-        return new Queue(INVENTORY_QUEUE, true); // Durable queue for order items
+        return new Queue(INVENTORY_QUEUE, true); // Durable queue for inventory
     }
 
     // Exchange
@@ -71,5 +75,19 @@ public class RabbitConfig {
     @Bean
     public Binding inventoryBinding() {
         return BindingBuilder.bind(inventoryQueue()).to(inventoryExchange()).with(INVENTORY_ROUTING_KEY);
+    }
+
+    // RabbitListener container factory for error handling and retries
+    @Bean
+    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory);
+        factory.setMessageConverter(messageConverter());
+        factory.setAdviceChain(RetryInterceptorBuilder.stateless()
+                .maxAttempts(3)
+                .backOffOptions(1000, 2.0, 10000) // Adjust retry and backoff
+                .recoverer(new RejectAndDontRequeueRecoverer()) // Reject message after retries
+                .build());
+        return factory;
     }
 }

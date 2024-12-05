@@ -73,7 +73,7 @@ services:
         restart: unless-stopped
     
     rabbitmq:
-        image: rabbitmq:3.9.11-management-alpine
+        image: kirk006/e-commerzion-rabbitmq:latest
         container_name: rabbitmq
         ports:
           - "5672:5672"  # RabbitMQ default port for AMQP protocol
@@ -82,15 +82,15 @@ services:
           - RABBITMQ_DEFAULT_USER=admin
           - RABBITMQ_DEFAULT_PASS=admin
         volumes:
-          - rabbitmq_data:/var/lib/rabbitmq  # Persistent storage for RabbitMQ data
+          - rabbitmq-data:/var/lib/rabbitmq  # Persistent storage for RabbitMQ data
         networks:
-          - rabbitmq_network
+          - rabbitmq-network
         restart: unless-stopped
 
 networks:
     postgres-network:
         driver: bridge
-    rabbitmq_network:
+    rabbitmq-network:
         driver: bridge
 
 volumes:
@@ -104,5 +104,5 @@ volumes:
         driver: local
     order-items-service-data:
         driver: local
-    rabbitmq_data:
+    rabbitmq-data:
         driver: local

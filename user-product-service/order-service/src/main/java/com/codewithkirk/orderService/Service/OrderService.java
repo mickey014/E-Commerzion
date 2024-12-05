@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface OrderService {
-    Orders createOrder(OrderDto orderDto);
+    void createOrder(OrderDto orderDto);
 
     List<Orders> getAllOrderDetailsByCustomerId(Long customerId);
     Optional<Orders> getOrderDetailsByCustomerIdAndOrderId(Long customerId, String orderId);

@@ -96,19 +96,16 @@ public class OrderServiceUnitTest {
         // Stub the repository save method to return the saved seller
         when(orderRepository.save(any(Orders.class))).thenReturn(newOrder);
 
-        // Act
-        Orders result = orderServiceImpl.createOrder(orderDto);
-
+        orderServiceImpl.createOrder(orderDto);
 
         // Assert
-        assertNotNull(result);
-        assertEquals(orderId, result.getOrderId());
-        assertEquals(customerId, result.getCustomerId());
+        assertEquals(orderId, orderDto.getOrderId());
+        assertEquals(customerId, orderDto.getCustomerId());
         verify(orderRepository, times(1)).save(any(Orders.class));
 
         System.out.println("New order id: " + orderId);
         System.out.println("New order customer id: " + customerId);
-        System.out.println("New Order:" + result);
+        System.out.println("New Order:" + orderDto);
     }
 
     @Test

@@ -30,6 +30,51 @@ services:
     volumes:
       - seller-service-data:/var/lib/postgresql/data
     restart: always
+    
+  product-service-db:
+    image: kirk006/e-commerzion-product-service-db:latest
+    container_name: product-service-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: product_service
+    ports:
+      - "5434:5432"  # Expose PostgreSQL on localhost
+    networks:
+      - postgres-network
+    volumes:
+      - product-service-data:/var/lib/postgresql/data
+    restart: always
+    
+  order-service-db:
+    image: kirk006/e-commerzion-order-service-db:latest
+    container_name: order-service-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: order_service
+    ports:
+      - "5435:5432"  # Expose PostgreSQL on localhost
+    networks:
+      - postgres-network
+    volumes:
+      - order-service-data:/var/lib/postgresql/data
+    restart: always
+    
+  order-items-service-db:
+    image: kirk006/e-commerzion-order-items-service-db:latest
+    container_name: order-items-service-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: order_items_service
+    ports:
+      - "5436:5432"  # Expose PostgreSQL on localhost
+    networks:
+      - postgres-network
+    volumes:
+      - order-items-service-data:/var/lib/postgresql/data
+    restart: always
 
   user-service-app:
     image: kirk006/e-commerzion-user-service-app:latest
@@ -56,19 +101,95 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: test
     depends_on:
-      - user-service-db
       - user-service-app
       - seller-service-db
     networks:
       - postgres-network
     restart: always
+    
+  product-service-app:
+    image: kirk006/e-commerzion-product-service-app:latest
+    container_name: product-service-app
+    ports:
+      - "8201:8201"  # Expose application on localhost
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://product-service-db:5432/product_service
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: test
+    depends_on:
+      - user-service-app
+      - seller-service-app
+      - product-service-db
+    networks:
+      - postgres-network
+    restart: always
+    
+  order-service-app:
+    image: kirk006/e-commerzion-order-service-app:latest
+    container_name: order-service-app
+    ports:
+      - "8301:8301"  # Expose application on localhost
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://order-service-db:5432/order_service
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: test
+    depends_on:
+      - user-service-app
+      - product-service-app
+      - order-service-db
+    networks:
+      - postgres-network
+    restart: always
+    
+  order-items-service-app:
+    image: kirk006/e-commerzion-order-items-service-app:latest
+    container_name: order-items-service-app
+    ports:
+      - "8401:8401"  # Expose application on localhost
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://order-items-service-db:5432/order_service
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: test
+    depends_on:
+      - user-service-app
+      - product-service-app
+      - order-service-app
+      - order-items-service-db
+    networks:
+      - postgres-network
+    restart: always
+    
+  rabbitmq:
+        image: kirk006/e-commerzion-rabbitmq:latest
+        container_name: rabbitmq
+        ports:
+          - "5672:5672"  # RabbitMQ default port for AMQP protocol
+          - "15672:15672" # RabbitMQ management plugin port (web UI)
+        environment:
+          - RABBITMQ_DEFAULT_USER=admin
+          - RABBITMQ_DEFAULT_PASS=admin
+        volumes:
+          - rabbitmq-data:/var/lib/rabbitmq  # Persistent storage for RabbitMQ data
+        networks:
+          - rabbitmq-network
+        restart: unless-stopped
 
 networks:
   postgres-network:
     driver: bridge
+  rabbitmq-network:
+        driver: bridge
 
 volumes:
   user-service-data:
     driver: local
   seller-service-data:
+    driver: local
+  product-service-data:
+    driver: local
+  order-service-data:
+    driver: local
+  order-items-service-data:
+    driver: local
+  rabbitmq-data:
     driver: local

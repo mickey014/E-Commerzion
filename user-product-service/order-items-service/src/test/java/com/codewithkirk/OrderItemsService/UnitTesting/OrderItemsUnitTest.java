@@ -61,7 +61,7 @@ public class OrderItemsUnitTest {
         MockitoAnnotations.openMocks(this);
 
         orderItemsId = 1L;
-        orderId = "ec5b8acf";
+        orderId = "2a6a44dd";
         customerId = 1L;
         productId = 1L;
         quantity = 2;
@@ -98,16 +98,10 @@ public class OrderItemsUnitTest {
         when(orderServiceClient.getOrderById(orderId)).thenReturn(null);
         when(orderItemsRepository.save(any(OrderItems.class))).thenReturn(newOrderItems);
 
-        // Act
-        OrderItems result = orderItemsServiceImpl.createOrderItems(orderItemsDto);
-
-
-        // Assert
-        assertNotNull(result);
-        //assertEquals(orderItemsId, result.getOrderItemsId());
-        assertEquals(orderId, result.getOrderId());
-        assertEquals(customerId, result.getCustomerId());
-        assertEquals(productId, result.getProductId());
+        orderItemsServiceImpl.createOrderItems(orderItemsDto);
+        assertEquals(orderId, orderItemsDto.getOrderId());
+        assertEquals(customerId, orderItemsDto.getCustomerId());
+        assertEquals(productId, orderItemsDto.getProductId());
 
         verify(orderItemsRepository, times(1)).save(any(OrderItems.class));
 
@@ -115,7 +109,7 @@ public class OrderItemsUnitTest {
         System.out.println("New order items order id: " + orderId);
         System.out.println("New order customer id: " + customerId);
         System.out.println("New order product id: " + productId);
-        System.out.println("New Order:" + result);
+        System.out.println("New order items: " + orderItemsDto);
     }
 
     @Test
