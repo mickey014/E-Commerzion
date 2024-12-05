@@ -102,7 +102,7 @@ jobs:
           
       - name: Pull and Run User Service App
         run: |
-          docker run -d --name user-service --network e-commerzion-network -p 8001:8001 \
+          docker run -d --name user-service-app --network e-commerzion-network -p 8001:8001 \
           --env SPRING_DATASOURCE_URL=jdbc:postgresql://user-service-db:5432/user_service \
           --env SPRING_DATASOURCE_USERNAME=postgres \
           --env SPRING_DATASOURCE_PASSWORD=test \
@@ -111,7 +111,7 @@ jobs:
       - name: Wait for User Service App to Start
         run: |
           echo "Waiting for user-service to start..."
-          until curl -s http://localhost:8001/api/v1/users/1; do
+          until curl -s http://user-service-app:8001/api/v1/users/1; do
             echo "Waiting for user-service-app..."
             sleep 5
           done
@@ -119,8 +119,8 @@ jobs:
           
       - name: Create a User in User Service App
         run: |
-          echo "Creating a user in user-service..."
-          curl -X POST http://localhost:8001/api/v1/users/register \
+          echo "Creating a user in user-service-app..."
+          curl -X POST http://user-service-app:8001/api/v1/users/register \
                -H "Content-Type: application/json" \
                -d '{
                    "name": "John Doe",
