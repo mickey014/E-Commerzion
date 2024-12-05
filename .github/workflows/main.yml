@@ -36,6 +36,9 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           
+      - name: Pull RabbitMQ Image
+        run: docker pull rabbitmq:3.9.11-management-alpine
+          
       - name: Tag and Push RabbitMQ Image
         run: |
           docker tag rabbitmq:3.9.11-management-alpine ${{ secrets.DOCKER_USERNAME }}/e-commerzion-rabbitmq
