@@ -41,6 +41,18 @@ jobs:
             sleep 5
           done
           echo "User Service database is ready."
+          
+      - name: Create a User in User Service App
+        run: |
+          echo "Creating a user in user-service-app..."
+          curl -X POST http://localhost:8001/api/v1/users/register \
+               -H "Content-Type: application/json" \
+               -d '{
+                   "name": "John Doe",
+                   "username": "johndoe@gmail.com",
+                   "password": "test",
+                   "confirmPassword": "test"
+               }'  
 
       - name: Build User Service
         run: mvn -B clean verify --projects user-service
@@ -88,6 +100,21 @@ jobs:
             sleep 5
           done
           echo "Seller Service database is ready."
+          
+      - name: Create a User in Seller Service App
+        run: |
+          echo "Creating a user in user-service-app..."
+          curl -X POST http://localhost:8101/api/v1/sellers/register \
+               -H "Content-Type: application/json" \
+               -d '{
+                    "userId": 1,
+                    "sellerName": "John Doe",
+                    "storeName": "J Doe Tech Shop",
+                    "email": "johndoe@gmail.com",
+                    "phoneNumber": "000000000",
+                    "location": "John St.",
+                    "photoUrl": "https://jdoe.dev.com"
+               }' 
 
       - name: Build Seller Service
         run: mvn -B clean verify --projects seller-service
