@@ -24,6 +24,13 @@ jobs:
       - name: Create Docker Network
         run: docker network create e-commerzion-network || true
 
+      - name: Run PostgreSQL for User Service
+        run: |
+          docker run -d --name user-service-db --network e-commerzion-network \
+          -e POSTGRES_USER=postgres \
+          -e POSTGRES_PASSWORD=test \
+          -e POSTGRES_DB=user_service \
+          -p 5432:5432 kirk006/e-commerzion-user-service-db:latest
 
       - name: Wait for User Service DB to Start
         run: |
@@ -100,6 +107,15 @@ jobs:
           --env SPRING_DATASOURCE_USERNAME=postgres \
           --env SPRING_DATASOURCE_PASSWORD=test \
           kirk006/e-commerzion-user-service-app:latest
+          
+      - name: Wait for User Service App to Start
+        run: |
+          echo "Waiting for user-service-app to start..."
+          until curl -s http://localhost:8001/api/v1/users/1; do
+            echo "Waiting for user-service-app..."
+            sleep 5
+          done
+          echo "user-service-app is running."
           
       - name: Create a User in User Service App
         run: |
@@ -199,6 +215,15 @@ jobs:
           --env SPRING_DATASOURCE_PASSWORD=test \
           kirk006/e-commerzion-seller-service-app:latest
           
+      - name: Wait for User Service App to Start
+        run: |
+          echo "Waiting for user-service-app to start..."
+          until curl -s http://localhost:8001/api/v1/users/1; do
+            echo "Waiting for user-service-app..."
+            sleep 5
+          done
+          echo "user-service-app is running."
+          
       - name: Create a User in User Service App
         run: |
           echo "Creating a user in user-service-app..."
@@ -211,9 +236,18 @@ jobs:
                    "confirmPassword": "test"
                }'  
                
+      - name: Wait for Seller Service App to Start
+        run: |
+          echo "Waiting for seller-service-app to start..."
+          until curl -s http://localhost:8101/api/v1/sellers/user/1/seller/1; do
+            echo "Waiting for seller-service-app..."
+            sleep 5
+          done
+          echo "seller-service-app is running."
+               
       - name: Create a Seller in Seller Service App
         run: |
-          echo "Creating a user in user-service-app..."
+          echo "Creating a seller in seller-service-app..."
           curl -X POST http://localhost:8101/api/v1/sellers/register \
                -H "Content-Type: application/json" \
                -d '{
