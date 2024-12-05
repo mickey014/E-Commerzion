@@ -6,11 +6,8 @@ import com.codewithkirk.orderService.Model.Orders;
 import com.codewithkirk.orderService.Repository.OrderRepository;
 import com.codewithkirk.orderService.Service.OrderService;
 import com.codewithkirk.orderService.ServiceClient.UserServiceClient;
-import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.support.AmqpHeaders;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 
 import static com.codewithkirk.orderService.Configuration.RabbitConfig.ORDER_QUEUE;
@@ -18,7 +15,6 @@ import static com.codewithkirk.orderService.Configuration.RabbitConfig.ORDER_QUE
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -34,7 +30,7 @@ public class OrderServiceImpl implements OrderService {
 
     @RabbitListener(queues = ORDER_QUEUE)
     @Override
-    public void createOrder(OrderDto orderDto) {
+    public Orders createOrder(OrderDto orderDto) {
 
         // use this for testing
         String orderId = UUID.randomUUID().toString().substring(0,8);
@@ -69,7 +65,7 @@ public class OrderServiceImpl implements OrderService {
 
             orderRepository.save(order);
             logger.info("Order with ID {} saved successfully", orderDto.getOrderId());
-
+            return order;
         } catch (OrderException e) {
             logger.error("Order exception: {}", e.getMessage());
             throw e;
@@ -77,6 +73,13 @@ public class OrderServiceImpl implements OrderService {
             logger.error("Unexpected error occurred while processing order", e);
             throw new OrderException("Unexpected error occurred while creating order: " + e.getMessage());
         }
+
+    }
+
+    @Override
+    public Optional<Orders> getByOrderId(String orderId) {
+        return Optional.ofNullable(orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderException("No orders found.")));
     }
 
 
@@ -86,7 +89,6 @@ public class OrderServiceImpl implements OrderService {
         if (orders.isEmpty()) {
             throw new OrderException("No orders found for this customer.");
         }
-
         return orders;
     }
 
@@ -97,7 +99,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void updateOrder(Long customerId, String orderId, OrderDto orderDto) {
+    public Orders updateOrder(Long customerId, String orderId, OrderDto orderDto) {
         userServiceClient.getUserById(customerId);
         String orderStatus = orderDto.getOrderStatus().trim();
         String shippingAddress = orderDto.getShippingAddress().replaceAll("\\s+", " ").trim();
@@ -118,15 +120,11 @@ public class OrderServiceImpl implements OrderService {
         order.setPaymentStatus(paymentStatus);
 
         orderRepository.save(order);
+        return order;
     }
 
-    @Override
-    public Optional<Orders> getByOrderId(String orderId) {
-        return Optional.ofNullable(orderRepository.findById(orderId)
-                .orElseThrow(() -> new OrderException("No orders found.")));
-    }
 
-    private String generateTrackingNumber() {
+    public String generateTrackingNumber() {
         // Get the current date and time in the format yyyy-MM-dd HH:mm:ss
         String currentDateTime = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
 

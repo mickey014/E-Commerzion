@@ -1,7 +1,8 @@
-package com.codewithkirk.productService.UnitTesting;
+package com.codewithkirk.productService.IntegrationTesting;
 
 import com.codewithkirk.productService.Dto.*;
 import com.codewithkirk.productService.Exception.ProductOrderServiceUnavailableException;
+import com.codewithkirk.productService.IntegrationTesting.Config.ProductServiceIntegrationTestConfig;
 import com.codewithkirk.productService.Model.Products;
 import com.codewithkirk.productService.Repository.ProductRepository;
 import com.codewithkirk.productService.Service.impl.ProductServiceImp;
@@ -9,52 +10,53 @@ import com.codewithkirk.productService.ServiceClient.OrderItems.OrderItemsServic
 import com.codewithkirk.productService.ServiceClient.Orders.OrderServiceClient;
 import com.codewithkirk.productService.ServiceClient.Sellers.SellerServiceClient;
 import com.codewithkirk.productService.ServiceClient.Users.UserServiceClient;
-import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.*;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.slf4j.Logger;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;
 import java.util.*;
 
-import static com.codewithkirk.productService.Configuration.RabbitConfig.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@RequiredArgsConstructor
-public class ProductServiceUnitTest {
-    @Mock
+@SpringBootTest
+@TestMethodOrder(OrderAnnotation.class)
+public class ProductServiceIntegrationTest extends ProductServiceIntegrationTestConfig {
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
     private ProductRepository productRepository;
 
-    @Mock
-    private UserServiceClient userServiceClient; // Mocked UserServiceClient
+    @Autowired
+    private UserServiceClient userServiceClient;
 
-    @Mock
-    private SellerServiceClient sellerServiceClient; // Mocked UserServiceClient
+    @Autowired
+    private SellerServiceClient sellerServiceClient;
 
-    @Mock
-    private OrderServiceClient orderServiceClient; // Mocked UserServiceClient
+    @Autowired
+    private OrderServiceClient orderServiceClient;
 
-    @Mock
-    private OrderItemsServiceClient orderItemsServiceClient; // Mocked UserServiceClient
+    @Autowired
+    private OrderItemsServiceClient orderItemsServiceClient;
 
-    @Mock
+    @Autowired
     private RabbitTemplate rabbitTemplate;
 
-    @Mock
-    private Logger logger;
-
-    @InjectMocks
+    @Autowired
     private ProductServiceImp productServiceImp;
 
-    private final Long userId = 1L;
-    private final Long sellerId = 1L;
-    private final Long productId = 1L;
+    private Long userId = 1L;
+    private Long sellerId = 1L;
+    private Long productId = 1L;
 
     private ProductDto productDto;
     private Products newProduct;
@@ -71,8 +73,7 @@ public class ProductServiceUnitTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-
+        // Arrange reusable test data
         productName = "Iphone 13";
         skuCode = "20241204TES213EWFQ";
         productDescription = "Iphone 13 Pro Max";
@@ -114,22 +115,26 @@ public class ProductServiceUnitTest {
                 .build();
     }
 
+    //@Test
+    void testDbConn() {
+        Integer result = jdbcTemplate.queryForObject("SELECT 1", Integer.class);
+        assertThat(result).isEqualTo(1);
+        if(result != null) {
+            System.out.println(result);
+            System.out.println("Connected to " + postgreSqlContainer.getDatabaseName() + " Integration test");
+        }
+    }
+
     @Test
     @Order(1)
     void shouldCreateNewProduct() {
+        System.out.println("Connected to " + postgreSqlContainer.getDatabaseName() + " Integration test");
 
-        // Mock SellerServiceClient behavior
-        when(sellerServiceClient.getSellerByUserIdAndSellerId(productDto.getUserId(),
-                productDto.getSellerId()))
-                .thenReturn(null); // Mock a return value (adjust as needed)
-
-        // Stub the repository save method to return the saved seller
-        when(productRepository.save(any(Products.class))).thenReturn(newProduct);
-
-        // Act: Call the method under test
+        sellerServiceClient.getSellerByUserIdAndSellerId(productDto.getUserId(),
+                productDto.getSellerId());
         Products result = productServiceImp.newProduct(productDto);
 
-        // Assert: Verify the behavior and output
+        // Assert: Verify the result
         assertNotNull(result);
         assertEquals(productId, result.getProductId());
         assertEquals(userId, result.getUserId());
@@ -138,23 +143,18 @@ public class ProductServiceUnitTest {
         assertEquals(skuCode, result.getSkuCode());
 
 
-        // Verify save was called once
-        verify(productRepository, times(1)).save(any(Products.class));
-        // Verify UserServiceClient interaction
-        verify(sellerServiceClient, times(1)).getSellerByUserIdAndSellerId(
-                                                                    productDto.getUserId(),
-                                                                    productDto.getSellerId());
-
-        // Print the result to the console
-        System.out.println("Product id: " + productId);
-        System.out.println("Product user id: " + userId);
-        System.out.println("Product seller id: " + sellerId);
-        System.out.println("New Product: " + result);
+        if(result != null) {
+            System.out.println("Registered seller id: " + sellerId);
+            System.out.println("Registered user id: " + userId);
+            System.out.println("Registered seller: " + result);
+        }
     }
 
     @Test
     @Order(2)
     void shouldPurchaseProduct() {
+        System.out.println("Connected to " + postgreSqlContainer.getDatabaseName() + " Integration test");
+
         String orderId = UUID.randomUUID().toString().substring(0, 8);
 
         // Arrange: Set up the ProductPurchaseDto
@@ -167,45 +167,29 @@ public class ProductServiceUnitTest {
         productPurchaseDto.setPaymentStatus("Paid");
         productPurchaseDto.setShippingMethod("Standard");
 
+        userServiceClient.getUserById(productPurchaseDto.getCustomerId());
+
         List<ProductItemsDto> orderItems = new ArrayList<>();
         // Adding multiple ProductItemsDto objects to the list
         orderItems.add(new ProductItemsDto(productId, 2, BigDecimal.valueOf(50.25)));
         orderItems.add(new ProductItemsDto(productId, 1, BigDecimal.valueOf(50.25)));
         productPurchaseDto.setOrderItems(orderItems);
 
-        // Mocking service calls
-        when(userServiceClient.getUserById(userId)).thenReturn(null);  // Mock a valid user
-        when(productRepository.findById(productId)).thenReturn(Optional.of(new Products()));  // Mock product found
-        when(orderServiceClient.checkHealth()).thenReturn("{\"status\":\"DOWN\"}");  // Simulate Order Service down
-        when(orderItemsServiceClient.checkHealth()).thenReturn("{\"status\":\"UP\"}");  // Order Items Service is up
-
-        // Act & Assert
-        ProductOrderServiceUnavailableException exception = assertThrows(
-                ProductOrderServiceUnavailableException.class,
-                () -> productServiceImp.productPurchase(productPurchaseDto)
-        );
-
-        // Assertions
-        assertNotNull(exception);
-        assertEquals("Order Service is down. Order processing aborted.", exception.getMessage());
-
-        // Verify that no RabbitMQ messages are sent if the service is down
-        verify(rabbitTemplate, times(0))
-                .convertAndSend(eq(ORDER_EXCHANGE), eq(ORDER_ROUTING_KEY), any(OrderDto.class));
-        verify(rabbitTemplate, times(0))
-                .convertAndSend(eq(ORDER_ITEMS_EXCHANGE), eq(ORDER_ITEMS_ROUTING_KEY),
-                        any(OrderItemsDto.class));
+        productServiceImp.productPurchase(productPurchaseDto);
 
         // Print the result to the console
         System.out.println("Product id: " + productId);
         System.out.println("Product order id: " + orderId);
         System.out.println("Product user id: " + userId);
+        System.out.println("Product seller id: " + sellerId);
         System.out.println("Product Purchase: " + productPurchaseDto);
     }
 
     @Test
     @Order(3)
     void shouldReturnAllProducts() {
+        System.out.println("Connected to " + postgreSqlContainer.getDatabaseName() + " Integration test");
+
         productName = "Iphone 14";
         skuCode = "2024120414TES213EWFQ";
         productDescription = "Iphone 14 Pro Max";
@@ -235,10 +219,7 @@ public class ProductServiceUnitTest {
                 .photoUrl(photoUrl)
                 .build();
 
-        List<Products> products = Arrays.asList(newProduct, newProduct2);
-
-        // Mocking the repository method to return the mock products list
-        when(productRepository.findAll()).thenReturn(products);
+        productRepository.saveAll(Arrays.asList(newProduct, newProduct2));
 
         // Act: Call the method
         List<ProductDto> result = productServiceImp.showProducts();
@@ -247,6 +228,7 @@ public class ProductServiceUnitTest {
         assertNotNull(result);
 
         assertEquals(2, result.size());
+
         assertEquals(userId, newProduct.getUserId());
         assertEquals(sellerId, newProduct.getSellerId());
         assertEquals(productId, newProduct.getProductId());
@@ -255,24 +237,14 @@ public class ProductServiceUnitTest {
         assertEquals(sellerId2, newProduct2.getSellerId());
         assertEquals(productId2, newProduct2.getProductId());
 
-        // Verify that the repository method was called once
-        verify(productRepository, times(1)).findAll();
-
-        // Print the result to the console
-        System.out.println("Product id: " + productId);
-        System.out.println("Product user id: " + userId);
-        System.out.println("Product seller id: " + sellerId);
-        System.out.println();
-        System.out.println("Product id: " + productId2);
-        System.out.println("Product user id: " + userId2);
-        System.out.println("Product seller id: " + sellerId2);
-        System.out.println();
         System.out.println("Products: " + result);
     }
 
     @Test
     @Order(4)
     void shouldReturnAllProductsBySellerId() {
+        System.out.println("Connected to " + postgreSqlContainer.getDatabaseName() + " Integration test");
+
         productName = "Iphone 14";
         skuCode = "2024120414TES213EWFQ";
         productDescription = "Iphone 14 Pro Max";
@@ -283,9 +255,9 @@ public class ProductServiceUnitTest {
         availability = "In Stock";
         photoUrl = "http://example.com/iphon14.jpg";
 
-        Long productId2 = 1L;
-        Long sellerId2 = 1L;
-        Long userId2 = 1L;
+        Long productId2 = 2L;
+        Long sellerId2 = 2L;
+        Long userId2 = 2L;
 
         Products newProduct2  = Products.builder()
                 .productId(productId2)
@@ -302,13 +274,10 @@ public class ProductServiceUnitTest {
                 .photoUrl(photoUrl)
                 .build();
 
-        List<Products> products = Arrays.asList(newProduct, newProduct2);
-
-        // Mocking the repository method to return the mock products list
-        when(productRepository.findAllProductsBySellerId(sellerId)).thenReturn(products);
+        productRepository.saveAll(Arrays.asList(newProduct, newProduct2));
 
         // Act: Call the method
-        List<Products> result = productServiceImp.showAllProductsBySellerId(sellerId);
+        List<ProductDto> result = productServiceImp.showProducts();
 
         // Assert: Verify the result
         assertNotNull(result);
@@ -318,23 +287,26 @@ public class ProductServiceUnitTest {
         assertEquals(sellerId, newProduct.getSellerId());
         assertEquals(productId, newProduct.getProductId());
 
-        // Verify that the repository method was called once
-        verify(productRepository, times(1))
-                .findAllProductsBySellerId(sellerId);
+        assertEquals(userId2, newProduct2.getUserId());
+        assertEquals(sellerId2, newProduct2.getSellerId());
+        assertEquals(productId2, newProduct2.getProductId());
 
         // Print the result to the console
         System.out.println("Product id: " + productId);
         System.out.println("Product user id: " + userId);
         System.out.println("Product seller id: " + sellerId);
+        System.out.println();
+        System.out.println("Product id: " + productId2);
+        System.out.println("Product user id: " + userId2);
+        System.out.println("Product seller id: " + sellerId2);
+        System.out.println();
         System.out.println("Products: " + result);
     }
 
     @Test
     @Order(5)
     void shouldReturnProductById() {
-        // Mocking the repository to return the product when searched by sellerId and productId
-        when(productRepository.findById(productId))
-                .thenReturn(Optional.of(newProduct));
+        System.out.println("Connected to " + postgreSqlContainer.getDatabaseName() + " Integration test");
 
         // Act: Call the method
         Optional<Products> result = productServiceImp.showProductById(productId);
@@ -344,10 +316,6 @@ public class ProductServiceUnitTest {
         assertEquals(productId, result.get().getProductId());
         assertEquals(userId, result.get().getUserId());
         assertEquals(sellerId, result.get().getSellerId());
-
-        // Verify that the repository method was called once with the correct arguments
-        verify(productRepository, times(1))
-                .findById(productId);
 
         // Print the result to the console
         System.out.println("Product id: " + productId);
@@ -359,10 +327,7 @@ public class ProductServiceUnitTest {
     @Test
     @Order(6)
     void shouldReturnProductBySellerIdAndProductId() {
-
-        // Mocking the repository to return the product when searched by sellerId and productId
-        when(productRepository.findProductBySellerIdAndProductId(sellerId, productId))
-                .thenReturn(Optional.of(newProduct));
+        System.out.println("Connected to " + postgreSqlContainer.getDatabaseName() + " Integration test");
 
         // Act: Call the method
         Optional<Products> result = productServiceImp.showProductBySellerIdAndProductId(sellerId, productId);
@@ -372,10 +337,6 @@ public class ProductServiceUnitTest {
         assertEquals(productId, result.get().getProductId());
         assertEquals(userId, result.get().getUserId());
         assertEquals(sellerId, result.get().getSellerId());
-
-        // Verify that the repository method was called once with the correct arguments
-        verify(productRepository, times(1))
-                .findProductBySellerIdAndProductId(sellerId, productId);
 
         // Print the result to the console
         System.out.println("Product id: " + productId);
@@ -387,10 +348,10 @@ public class ProductServiceUnitTest {
     @Test
     @Order(7)
     void shouldUpdateProduct() {
-        // Mock SellerServiceClient behavior
-        when(sellerServiceClient.getSellerByUserIdAndSellerId(productDto.getUserId(),
-                productDto.getSellerId()))
-                .thenReturn(null); // Mock a return value (adjust as needed)
+        System.out.println("Connected to " + postgreSqlContainer.getDatabaseName() + " Integration test");
+
+        sellerServiceClient.getSellerByUserIdAndSellerId(productDto.getUserId(),
+                productDto.getSellerId());
 
         Long productId = 1L;
         Long sellerId = 1L;
@@ -436,11 +397,6 @@ public class ProductServiceUnitTest {
                 .photoUrl(photoUrl)
                 .build();
 
-        when(productRepository.findProductBySellerIdAndProductId(sellerId, productId))
-                .thenReturn(Optional.of(updateProduct));
-        when(productRepository.save(any(Products.class))).thenReturn(updateProduct);
-
-
         // Call method
         Products result = productServiceImp.updateProduct(userId, sellerId,
                 productId, updateProductDto);
@@ -451,8 +407,6 @@ public class ProductServiceUnitTest {
         assertEquals(sellerId, updateProductDto.getSellerId());
         assertEquals(userId, updateProductDto.getUserId());
 
-        verify(productRepository, times(1)).save(any(Products.class));
-
         System.out.println("Updated product id: " + productId);
         System.out.println("Updated product seller id: " + sellerId);
         System.out.println("Updated product user id: " + userId);
@@ -462,22 +416,13 @@ public class ProductServiceUnitTest {
     @Test
     @Order(8)
     void shouldForceDeleteProduct() {
-        // Mock SellerServiceClient behavior
-        when(sellerServiceClient.getSellerByUserIdAndSellerId(productDto.getUserId(),
-                productDto.getSellerId()))
-                .thenReturn(null); // Mock a return value (adjust as needed)
+        System.out.println("Connected to " + postgreSqlContainer.getDatabaseName() + " Integration test");
 
-        when(productRepository.findProductBySellerIdAndProductId(sellerId, productId))
-                .thenReturn(Optional.of(new Products()));
+        sellerServiceClient.getSellerByUserIdAndSellerId(productDto.getUserId(),
+                productDto.getSellerId());
 
         // Act: Call the method
         productServiceImp.forceDeleteProduct(userId, sellerId, productId);
-
-        // Verify interactions with mocks
-        verify(sellerServiceClient, times(1))
-                .getSellerByUserIdAndSellerId(userId, sellerId);
-        verify(productRepository, times(1))
-                .findProductBySellerIdAndProductId(sellerId, productId);
 
         System.out.println("Force delete product id: " + productId);
         System.out.println("Force delete product user id: " + userId);

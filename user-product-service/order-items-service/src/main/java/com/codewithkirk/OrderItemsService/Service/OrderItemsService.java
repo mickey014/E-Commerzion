@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface OrderItemsService {
-    void createOrderItems(OrderItemsDto orderItemsDto);
+    OrderItems createOrderItems(OrderItemsDto orderItemsDto);
 
     List<OrderItems> getAllOrderItemsDetailsByCustomerId(Long customerId);
 

@@ -21,7 +21,7 @@ public interface ProductService {
     void forceDeleteProduct(Long userId, Long sellerId, Long productId);
 
 
-    void productPurchase(ProductPurchaseDto productPurchaseDto);
+    Products productPurchase(ProductPurchaseDto productPurchaseDto);
 
     boolean isOrderServiceUp();
 
