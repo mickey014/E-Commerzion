@@ -224,6 +224,15 @@ jobs:
           done
           echo "user-service-app is running."
           
+      - name: Wait for Seller Service App to Start
+        run: |
+          echo "Waiting for seller-service-app to start..."
+          until curl -s http://localhost:8101/api/v1/sellers/user/1/seller/1; do
+            echo "Waiting for seller-service-app..."
+            sleep 5
+          done
+          echo "seller-service-app is running."
+          
       - name: Create a User in User Service App
         run: |
           echo "Creating a user in user-service-app..."
@@ -235,15 +244,6 @@ jobs:
                    "password": "test",
                    "confirmPassword": "test"
                }'  
-               
-      - name: Wait for Seller Service App to Start
-        run: |
-          echo "Waiting for seller-service-app to start..."
-          until curl -s http://localhost:8101/api/v1/sellers/user/1/seller/1; do
-            echo "Waiting for seller-service-app..."
-            sleep 5
-          done
-          echo "seller-service-app is running."
                
       - name: Create a Seller in Seller Service App
         run: |
