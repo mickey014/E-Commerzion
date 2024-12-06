@@ -44,22 +44,6 @@ jobs:
           docker tag rabbitmq:3.9.11-management-alpine ${{ secrets.DOCKER_USERNAME }}/e-commerzion-rabbitmq
           docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-rabbitmq
 
-      - name: Pull postgres:14-alpine
-        run: docker pull postgres:14-alpine
-
-      - name: Tag and Push PostgreSQL Image for User Service
-        run: |
-          docker tag postgres:14-alpine ${{ secrets.DOCKER_USERNAME }}/e-commerzion-user-service-db
-          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-user-service-db
-
-      - name: Build and Push User Service Docker Image
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          file: user-product-service/user-service/Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-user-service-app:latest
-
       - name: Tag and Push PostgreSQL Image for Seller Service
         run: |
           docker tag postgres:14-alpine ${{ secrets.DOCKER_USERNAME }}/e-commerzion-seller-service-db
