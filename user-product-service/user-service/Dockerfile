@@ -6,17 +6,13 @@ WORKDIR /app
 
 # Copy only the necessary Maven configuration files first (to leverage caching for dependencies)
 COPY user-product-service/user-service/pom.xml /app/user-product-service/user-service/
-COPY user-product-service/pom.xml /app/user-product-service/
 
-# Pre-download dependencies for the user-service module to optimize build time
+# Pre-download dependencies to optimize build time
 WORKDIR /app/user-product-service/user-service
 RUN mvn dependency:go-offline -B
 
 # Copy the entire source code
 COPY . .
-
-# Move to the user-service module directory
-WORKDIR /app/user-product-service/user-service
 
 # Build the application JAR without running tests
 RUN mvn -f /app/user-product-service/user-service/pom.xml clean package -DskipTests
