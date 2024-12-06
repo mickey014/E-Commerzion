@@ -7,7 +7,6 @@ WORKDIR /app
 # Copy Maven configuration files for dependency caching
 COPY user-product-service/order-items-service/pom.xml /app/user-product-service/order-items-service/
 COPY user-product-service/pom.xml /app/user-product-service/
-COPY pom.xml /app/
 
 # Pre-download dependencies to leverage Docker caching
 RUN mvn dependency:go-offline -B

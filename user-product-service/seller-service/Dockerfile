@@ -7,7 +7,6 @@ WORKDIR /app
 # Copy only Maven configuration files first to leverage caching for dependencies
 COPY user-product-service/seller-service/pom.xml /app/user-product-service/seller-service/
 COPY user-product-service/pom.xml /app/user-product-service/
-COPY pom.xml /app/
 
 # Pre-download dependencies to optimize build time
 RUN mvn dependency:go-offline -B
