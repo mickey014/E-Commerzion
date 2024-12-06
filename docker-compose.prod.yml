@@ -160,19 +160,29 @@ services:
     restart: always
     
   rabbitmq:
-        image: kirk006/e-commerzion-rabbitmq:latest
-        container_name: rabbitmq
-        ports:
-          - "5672:5672"  # RabbitMQ default port for AMQP protocol
-          - "15672:15672" # RabbitMQ management plugin port (web UI)
-        environment:
-          - RABBITMQ_DEFAULT_USER=admin
-          - RABBITMQ_DEFAULT_PASS=admin
-        volumes:
-          - rabbitmq-data:/var/lib/rabbitmq  # Persistent storage for RabbitMQ data
-        networks:
-          - rabbitmq-network
-        restart: unless-stopped
+    image: kirk006/e-commerzion-rabbitmq:latest
+    container_name: rabbitmq
+    ports:
+    - "5672:5672"
+    - "15672:15672"
+    environment:
+        RABBITMQ_DEFAULT_USER: admin
+        RABBITMQ_DEFAULT_PASS: admin
+    depends_on:
+      - product-service-app
+      - order-service-app
+      - order-items-service-app
+    volumes:
+        - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+        - postgres-network
+        - rabbitmq-network
+    healthcheck:
+        test: ["CMD", "rabbitmqctl", "status"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+    restart: always
 
 networks:
   postgres-network:

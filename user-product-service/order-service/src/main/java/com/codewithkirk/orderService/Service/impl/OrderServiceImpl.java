@@ -28,7 +28,7 @@ public class OrderServiceImpl implements OrderService {
 
     private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
-    @RabbitListener(queues = ORDER_QUEUE)
+    @RabbitListener(queues = ORDER_QUEUE, containerFactory = "rabbitListenerContainerFactory")
     @Override
     public void createOrder(OrderDto orderDto) {
 
