@@ -47,7 +47,7 @@ jobs:
           context: .
           file: user-product-service/user-service/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-user-service-app:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-user-service-app:dev
           
   seller-service:
     runs-on: ubuntu-latest
@@ -87,7 +87,7 @@ jobs:
           context: .
           file: user-product-service/seller-service/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-seller-service-app:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-seller-service-app:dev
           
   product-service:
     runs-on: ubuntu-latest
@@ -127,7 +127,7 @@ jobs:
           context: .
           file: user-product-service/product-service/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-product-service-app:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-product-service-app:dev
   
   order-service:
     runs-on: ubuntu-latest
@@ -167,7 +167,7 @@ jobs:
           context: .
           file: user-product-service/order-service/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-service-app:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-service-app:dev
           
   order-items-service:
     runs-on: ubuntu-latest
@@ -207,7 +207,7 @@ jobs:
           context: .
           file: user-product-service/order-items-service/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-items-service-app:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-items-service-app:dev
           
       - name: Pull RabbitMQ Image
         run: docker pull rabbitmq:3.9.11-management-alpine
