@@ -14,7 +14,7 @@ services:
       - postgres-network
     volumes:
       - user-service-data:/var/lib/postgresql/data
-    restart: always
+    restart: unless-stopped
     
   # seller-service-db:
     # image: kirk006/e-commerzion-seller-service-db:latest
