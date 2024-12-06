@@ -25,9 +25,9 @@ WORKDIR /app
 # Copy the built JAR file from the build stage
 COPY --from=build /app/target/user-service-0.0.1.jar /app.jar
 
-# Expose the application port
-EXPOSE 8001
-
 # Add JVM optimizations via environment variables
 # Set the entry point for the application
-ENTRYPOINT ["sh", "-c", "java -Xms256m -Xmx512m -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport -cp /app.jar com.codewithkirk.userService.UserServiceApplication"]
+ENTRYPOINT ["sh", "-c", "java -Xms256m -Xmx512m -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport -jar /app.jar"]
+
+# Expose the application port
+EXPOSE 8001
