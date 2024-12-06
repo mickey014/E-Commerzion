@@ -12,6 +12,8 @@ RUN mvn dependency:go-offline -B
 # Copy source code
 COPY . .
 
+WORKDIR /app/user-product-service/user-service
+
 # Build the application
 RUN mvn clean package -DskipTests
 
