@@ -1,4 +1,4 @@
-name: E-Commerzion Main Branch
+name: E-Commerzion - Main Branch
 
 on:
   pull_request:
