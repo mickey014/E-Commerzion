@@ -56,7 +56,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: user-product-service/user-service/Dockerfile.users
+          file: user-product-service/user-service/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-user-service-app:latest
 
@@ -69,7 +69,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: user-product-service/seller-service/Dockerfile.sellers
+          file: user-product-service/seller-service/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-seller-service-app:latest
           
@@ -82,7 +82,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: user-product-service/product-service/Dockerfile.products
+          file: user-product-service/product-service/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-product-service-app:latest
           
@@ -95,7 +95,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: user-product-service/order-service/Dockerfile.orders
+          file: user-product-service/order-service/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-service-app:latest
           
@@ -108,6 +108,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: user-product-service/order-items-service/Dockerfile.orderItems
+          file: user-product-service/order-items-service/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-items-service-app:latest
