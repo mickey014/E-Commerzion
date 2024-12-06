@@ -1,9 +1,6 @@
 name: E-Commerzion - Dev Branch
 
 on:
-  push:
-    branches: 
-      - dev
   pull_request:
     branches:
       - dev
@@ -33,12 +30,13 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           
-      - name: Pull postgres:14-alpine
-        run: docker pull postgres:14-alpine
+      - name: Pull kirk006/e-commerzion-user-service-db:latest
+        run: docker pull kirk006/e-commerzion-user-service-db:latest
 
       - name: Tag and Push PostgreSQL Image for User Service
         run: |
-          docker tag postgres:14-alpine ${{ secrets.DOCKER_USERNAME }}/e-commerzion-user-service-db
+          docker tag kirk006/e-commerzion-user-service-db:slave \
+            ${{ secrets.DOCKER_USERNAME }}/e-commerzion-user-service-db
           docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-user-service-db
 
       - name: Build and Push User Service Docker Image
@@ -73,12 +71,13 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           
-      - name: Pull postgres:14-alpine
-        run: docker pull postgres:14-alpine
+      - name: Pull kirk006/e-commerzion-seller-service-db:latest
+        run: docker pull kirk006/e-commerzion-seller-service-db:latest
 
-      - name: Tag and Push PostgreSQL Image for User Service
+      - name: Tag and Push PostgreSQL Image for Seller Service
         run: |
-          docker tag postgres:14-alpine ${{ secrets.DOCKER_USERNAME }}/e-commerzion-seller-service-db
+          docker tag kirk006/e-commerzion-seller-service-db:slave \
+            ${{ secrets.DOCKER_USERNAME }}/e-commerzion-seller-service-db
           docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-seller-service-db
 
       - name: Build and Push Seller Service Docker Image
@@ -113,12 +112,13 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           
-      - name: Pull postgres:14-alpine
-        run: docker pull postgres:14-alpine
+      - name: Pull kirk006/e-commerzion-product-service-db:latest
+        run: docker kirk006/e-commerzion-product-service-db:latest
 
       - name: Tag and Push PostgreSQL Image for User Service
         run: |
-          docker tag postgres:14-alpine ${{ secrets.DOCKER_USERNAME }}/e-commerzion-product-service-db
+          docker tag kirk006/e-commerzion-product-service-db:slave \
+            ${{ secrets.DOCKER_USERNAME }}/e-commerzion-product-service-db
           docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-product-service-db
 
       - name: Build and Push Product Service Docker Image
@@ -153,12 +153,13 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           
-      - name: Pull postgres:14-alpine
-        run: docker pull postgres:14-alpine
+      - name: Pull kirk006/e-commerzion-order-service-db:latest
+        run: docker kirk006/e-commerzion-order-service-db:latest
 
       - name: Tag and Push PostgreSQL Image for User Service
         run: |
-          docker tag postgres:14-alpine ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-service-db
+          docker tag kirk006/e-commerzion-order-service-db:slave \
+            ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-service-db
           docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-service-db
 
       - name: Build and Push Order Service Docker Image
@@ -193,12 +194,13 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           
-      - name: Pull postgres:14-alpine
-        run: docker pull postgres:14-alpine
+      - name: Pull kirk006/e-commerzion-order-items-service-db:latest
+        run: docker pull kirk006/e-commerzion-order-items-service-db:latest
 
-      - name: Tag and Push PostgreSQL Image for User Service
+      - name: Tag and Push PostgreSQL Image for Order Items Service
         run: |
-          docker tag postgres:14-alpine ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-items-service-db
+          docker tag kirk006/e-commerzion-order-items-service-db:slave \
+            ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-items-service-db
           docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-items-service-db
 
       - name: Build and Push Order Items Service Docker Image
@@ -210,9 +212,10 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-items-service-app:dev
           
       - name: Pull RabbitMQ Image
-        run: docker pull rabbitmq:3.9.11-management-alpine
+        run: docker pull kirk006/e-commerzion-rabbitmq:latest
           
       - name: Tag and Push RabbitMQ Image
         run: |
-          docker tag rabbitmq:3.9.11-management-alpine ${{ secrets.DOCKER_USERNAME }}/e-commerzion-rabbitmq
+          docker tag kirk006/e-commerzion-rabbitmq:latest \
+            ${{ secrets.DOCKER_USERNAME }}/e-commerzion-rabbitmq
           docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-rabbitmq

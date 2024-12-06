@@ -77,7 +77,7 @@ services:
     restart: unless-stopped
 
   user-service-app:
-    image: kirk006/e-commerzion-user-service-app:latest
+    image: kirk006/e-commerzion-user-service-app:dev
     container_name: user-service-app
     ports:
       - "8001:8001"  # Expose application on localhost
@@ -92,7 +92,7 @@ services:
     restart: unless-stopped
     
   seller-service-app:
-    image: kirk006/e-commerzion-seller-service-app:latest
+    image: kirk006/e-commerzion-seller-service-app:dev
     container_name: seller-service-app
     ports:
       - "8101:8101"  # Expose application on localhost
@@ -108,7 +108,7 @@ services:
     restart: unless-stopped
     
   product-service-app:
-    image: kirk006/e-commerzion-product-service-app:latest
+    image: kirk006/e-commerzion-product-service-app:dev
     container_name: product-service-app
     ports:
       - "8201:8201"  # Expose application on localhost
@@ -125,7 +125,7 @@ services:
     restart: unless-stopped
     
   order-service-app:
-    image: kirk006/e-commerzion-order-service-app:latest
+    image: kirk006/e-commerzion-order-service-app:dev
     container_name: order-service-app
     ports:
       - "8301:8301"  # Expose application on localhost
@@ -142,7 +142,7 @@ services:
     restart: unless-stopped
     
   order-items-service-app:
-    image: kirk006/e-commerzion-order-items-service-app:latest
+    image: kirk006/e-commerzion-order-items-service-app:dev
     container_name: order-items-service-app
     ports:
       - "8401:8401"  # Expose application on localhost
