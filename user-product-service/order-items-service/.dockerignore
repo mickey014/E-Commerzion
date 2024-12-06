@@ -1,0 +1,34 @@
+# Ignore target directory (Maven's default output folder)
+target/
+
+# Ignore the .git directory to avoid including Git metadata in the Docker image
+.git/
+
+# Ignore Maven wrapper files (if present)
+.mvn/
+.mvnw
+.mvnw.cmd
+
+# Ignore local IDE configurations (e.g., IntelliJ, Eclipse, etc.)
+.idea/
+.vscode/
+
+# Ignore log files
+*.log
+
+# Ignore test reports and coverage files
+test-coverage/
+*.xml
+*.json
+
+# Ignore Maven build metadata files
+pom.xml.asc
+pom.xml.sig
+
+# Ignore documentation files
+*.md
+*.rst
+
+# Ignore temporary files or editor backup files
+*~
+*.bak

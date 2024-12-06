@@ -26,7 +26,7 @@ WORKDIR /app
 COPY --from=build /app/user-product-service/order-service/target/order-service-0.0.1.jar /app/app.jar
 
 # Expose port
-EXPOSE 8101
+EXPOSE 8301
 
 # Set JVM options
 ENV JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport"
