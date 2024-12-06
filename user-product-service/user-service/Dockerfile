@@ -25,7 +25,7 @@ FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
 # Copy the built JAR file from the build stage
-COPY --from=build /app/user-service-0.0.1.jar /app.jar
+COPY --from=build /user-service-0.0.1.jar /app.jar
 
 # Expose the application port
 EXPOSE 8001
