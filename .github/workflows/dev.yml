@@ -23,7 +23,7 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build User Service
+      - name: Run Unit Tests
         run: mvn clean -B test -Dtest=UnitTesting/* --projects user-service
         working-directory: user-product-service
 

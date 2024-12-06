@@ -5,17 +5,17 @@ FROM maven:3.8.8-eclipse-temurin-17-alpine AS build
 WORKDIR /app
 
 # Copy the Maven configuration files to leverage caching for dependencies
-COPY user-product-service/user-service/pom.xml /app/user-product-service/user-service/pom.xml
+COPY user-product-service/user-service/pom.xml /app/pom.xml
 
 # Pre-download dependencies to optimize build time
-WORKDIR /app/user-product-service/user-service
+WORKDIR /app
 RUN mvn dependency:go-offline -B
 
 # Copy the entire source code
 COPY . . 
 
 # Build the application JAR without running tests
-WORKDIR /app/user-product-service/user-service
+WORKDIR /app
 RUN mvn clean package -DskipTests
 
 # Stage 2: Runtime
@@ -25,7 +25,7 @@ FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
 # Copy the built JAR file from the build stage
-COPY --from=build /app/user-product-service/user-service/target/user-service-0.0.1.jar /app/app.jar
+COPY --from=build /app/user-service-0.0.1.jar /app.jar
 
 # Expose the application port
 EXPOSE 8001
@@ -34,4 +34,4 @@ EXPOSE 8001
 ENV JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport"
 
 # Set the entry point for the application
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app.jar"]
