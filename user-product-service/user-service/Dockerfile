@@ -5,7 +5,7 @@ FROM maven:3.8.8-eclipse-temurin-17-alpine AS build
 WORKDIR /app
 
 # Copy only the necessary Maven configuration files first (to leverage caching for dependencies)
-COPY user-product-service/user-service/pom.xml /app/user-product-service/user-service/
+COPY /user-product-service/user-service/pom.xml /app/user-product-service/user-service/
 
 # Pre-download dependencies to optimize build time
 WORKDIR /app/user-product-service/user-service
