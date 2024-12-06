@@ -2,27 +2,27 @@
 FROM maven:3.8.8-eclipse-temurin-17-alpine AS build
 
 # Set working directory for the build stage
-WORKDIR /app/user-service
+WORKDIR /app
 
 # Copy the Maven configuration files to leverage caching for dependencies
 COPY user-product-service/user-service/pom.xml /app/user-product-service/user-service/pom.xml
 
 # Pre-download dependencies to optimize build time
-WORKDIR /app/user-service
+WORKDIR /app/user-product-service/user-service
 RUN mvn dependency:go-offline -B
 
 # Copy the entire source code
 COPY . . 
 
 # Build the application JAR without running tests
-WORKDIR /app/user-service
+WORKDIR /app/user-product-service/user-service
 RUN mvn clean package -DskipTests
 
 # Stage 2: Runtime
 FROM eclipse-temurin:17-jre-alpine
 
 # Set working directory for runtime
-WORKDIR /app/user-service
+WORKDIR /app
 
 # Copy the built JAR file from the build stage
 COPY --from=build /app/user-product-service/user-service/target/user-service-0.0.1.jar /app/app.jar
