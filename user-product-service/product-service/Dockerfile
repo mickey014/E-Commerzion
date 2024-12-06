@@ -9,6 +9,7 @@ COPY user-product-service/product-service/pom.xml /app/user-product-service/prod
 COPY user-product-service/pom.xml /app/user-product-service/
 
 # Pre-download dependencies to leverage Docker caching
+WORKDIR /app/user-product-service/product-service
 RUN mvn dependency:go-offline -B
 
 # Copy the entire project source
@@ -18,7 +19,7 @@ COPY . .
 WORKDIR /app/user-product-service/product-service
 
 # Build the application JAR without tests
-RUN mvn clean package -DskipTests
+RUN mvn -f /app/user-product-service/product-service/pom.xml clean package -DskipTests
 
 # Stage 2: Runtime
 FROM eclipse-temurin:17-jre-alpine

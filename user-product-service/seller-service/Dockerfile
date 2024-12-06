@@ -9,6 +9,7 @@ COPY user-product-service/seller-service/pom.xml /app/user-product-service/selle
 COPY user-product-service/pom.xml /app/user-product-service/
 
 # Pre-download dependencies to optimize build time
+WORKDIR /app/user-product-service/seller-service
 RUN mvn dependency:go-offline -B
 
 # Copy the full project source
@@ -18,7 +19,7 @@ COPY . .
 WORKDIR /app/user-product-service/seller-service
 
 # Build the application JAR without running tests
-RUN mvn clean package -DskipTests
+RUN mvn -f /app/user-product-service/seller-service/pom.xml clean package -DskipTests
 
 # Stage 2: Runtime
 FROM eclipse-temurin:17-jre-alpine
