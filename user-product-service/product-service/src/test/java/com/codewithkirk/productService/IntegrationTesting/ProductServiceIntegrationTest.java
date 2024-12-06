@@ -54,7 +54,7 @@ public class ProductServiceIntegrationTest extends ProductServiceIntegrationTest
     @Autowired
     private ProductServiceImp productServiceImp;
 
-    private Long userId = 1L;
+    private Long userId = 2L;
     private Long sellerId = 1L;
     private Long productId = 1L;
 
@@ -161,6 +161,7 @@ public class ProductServiceIntegrationTest extends ProductServiceIntegrationTest
         ProductPurchaseDto productPurchaseDto = new ProductPurchaseDto();
         productPurchaseDto.setOrderId(orderId);
         productPurchaseDto.setCustomerId(userId);
+        productPurchaseDto.setProductId(productId);
         productPurchaseDto.setOrderStatus("Pending");
         productPurchaseDto.setShippingAddress("1234 Elm Street, Some City, Some Country");
         productPurchaseDto.setPaymentMethod("Credit Card");
@@ -171,7 +172,7 @@ public class ProductServiceIntegrationTest extends ProductServiceIntegrationTest
 
         List<ProductItemsDto> orderItems = new ArrayList<>();
         // Adding multiple ProductItemsDto objects to the list
-        orderItems.add(new ProductItemsDto(productId, 2, BigDecimal.valueOf(50.25)));
+        orderItems.add(new ProductItemsDto(productId, 1, BigDecimal.valueOf(50.25)));
         orderItems.add(new ProductItemsDto(productId, 1, BigDecimal.valueOf(50.25)));
         productPurchaseDto.setOrderItems(orderItems);
 
