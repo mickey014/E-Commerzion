@@ -5,7 +5,7 @@ import com.codewithkirk.orderService.IntegrationTesting.Config.OrderServiceInteg
 import com.codewithkirk.orderService.Model.Orders;
 import com.codewithkirk.orderService.Repository.OrderRepository;
 import com.codewithkirk.orderService.Service.impl.OrderServiceImpl;
-import com.codewithkirk.orderService.ServiceClient.UserServiceClient;
+import com.codewithkirk.orderService.ServiceClient.Users.UserServiceClient;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
@@ -22,7 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @TestMethodOrder(OrderAnnotation.class)
@@ -45,6 +44,7 @@ public class OrderServiceIntegrationTest extends OrderServiceIntegrationTestConf
 
     private static String orderId; // Shared field for the orderId
     private static Long customerId = 1L;    // Shared field for customerId
+    private static Long productId = 1L;    // Shared field for customerId
 
     private BigDecimal totalAmount;
     private String orderStatus;
@@ -69,6 +69,7 @@ public class OrderServiceIntegrationTest extends OrderServiceIntegrationTestConf
         orderDto = new OrderDto(
                 orderId,
                 customerId,
+                productId,
                 totalAmount,
                 orderStatus,
                 shippingAddress,
@@ -81,6 +82,7 @@ public class OrderServiceIntegrationTest extends OrderServiceIntegrationTestConf
         newOrder = Orders.builder()
                 .orderId(orderId)
                 .customerId(customerId)
+                .productId(productId)
                 .totalAmount(totalAmount)
                 .orderStatus(orderStatus)
                 .shippingAddress(shippingAddress)
@@ -187,6 +189,7 @@ public class OrderServiceIntegrationTest extends OrderServiceIntegrationTestConf
         OrderDto updatedOrderDto = new OrderDto(
                 orderId,
                 customerId,
+                productId,
                 totalAmount,
                 orderStatus,
                 shippingAddress,
@@ -199,6 +202,7 @@ public class OrderServiceIntegrationTest extends OrderServiceIntegrationTestConf
         Orders updatedOrder = Orders.builder()
                 .orderId(orderId)
                 .customerId(customerId)
+                .productId(productId)
                 .totalAmount(totalAmount)
                 .orderStatus(orderStatus)
                 .shippingAddress(shippingAddress)
