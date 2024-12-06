@@ -18,10 +18,10 @@ RUN mvn clean package -DskipTests
 # Stage 2: Runtime
 FROM eclipse-temurin:17-jre-alpine
 
-WORKDIR /app
+WORKDIR /app/user-product-service/user-service
 
 # Copy the JAR from the build stage
-COPY --from=build /app/target/user-service-0.0.1.jar /app.jar
+COPY --from=build /app/user-product-service/user-service/target/user-service-0.0.1.jar /app/app.jar
 
 # Expose port
 EXPOSE 8001
@@ -30,4 +30,4 @@ EXPOSE 8001
 ENV JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport"
 
 # Run the JAR
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
