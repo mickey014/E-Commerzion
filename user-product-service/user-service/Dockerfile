@@ -8,6 +8,7 @@ WORKDIR /app/user-service
 COPY user-product-service/user-service/pom.xml /app/user-product-service/user-service/pom.xml
 
 # Pre-download dependencies to optimize build time
+WORKDIR /app/user-service
 RUN mvn dependency:go-offline -B
 
 # Copy the entire source code
