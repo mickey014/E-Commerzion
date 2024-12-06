@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   user-service-db:
-    image: kirk006/e-commerzion-user-service-db:latest
+    image: kirk006/e-commerzion-user-service-db:slave
     container_name: user-service-db
     environment:
       POSTGRES_USER: postgres
@@ -17,7 +17,7 @@ services:
     restart: unless-stopped
     
   seller-service-db:
-    image: kirk006/e-commerzion-seller-service-db:latest
+    image: kirk006/e-commerzion-seller-service-db:slave
     container_name: seller-service-db
     environment:
       POSTGRES_USER: postgres
@@ -32,7 +32,7 @@ services:
     restart: unless-stopped
     
   product-service-db:
-    image: kirk006/e-commerzion-product-service-db:latest
+    image: kirk006/e-commerzion-product-service-db:slave
     container_name: product-service-db
     environment:
       POSTGRES_USER: postgres
@@ -47,7 +47,7 @@ services:
     restart: unless-stopped
     
   order-service-db:
-    image: kirk006/e-commerzion-order-service-db:latest
+    image: kirk006/e-commerzion-order-service-db:slave
     container_name: order-service-db
     environment:
       POSTGRES_USER: postgres
@@ -62,7 +62,7 @@ services:
     restart: unless-stopped
     
   order-items-service-db:
-    image: kirk006/e-commerzion-order-items-service-db:latest
+    image: kirk006/e-commerzion-order-items-service-db:slave
     container_name: order-items-service-db
     environment:
       POSTGRES_USER: postgres

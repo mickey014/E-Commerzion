@@ -116,7 +116,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           
       - name: Pull kirk006/e-commerzion-product-service-db:latest
-        run: docker kirk006/e-commerzion-product-service-db:latest
+        run: docker pull kirk006/e-commerzion-product-service-db:latest
 
       - name: Tag and Push ProductService DB Image as Slave
         run: |
@@ -157,7 +157,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           
       - name: Pull kirk006/e-commerzion-order-service-db:latest
-        run: docker kirk006/e-commerzion-order-service-db:latest
+        run: docker pull kirk006/e-commerzion-order-service-db:latest
 
       - name: Tag and Push OrderService Image as Slave
         run: |
