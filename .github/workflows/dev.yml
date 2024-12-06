@@ -36,11 +36,11 @@ jobs:
       - name: Pull kirk006/e-commerzion-user-service-db:latest
         run: docker pull kirk006/e-commerzion-user-service-db:latest
 
-      - name: Tag and Push UserService DB Image as Slave
+      - name: Tag and Push UserService DB Image as master
         run: |
           docker tag kirk006/e-commerzion-user-service-db:latest \
-            ${{ secrets.DOCKER_USERNAME }}/e-commerzion-user-service-db:slave
-          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-user-service-db:slave
+            ${{ secrets.DOCKER_USERNAME }}/e-commerzion-user-service-db:master
+          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-user-service-db:master
 
       - name: Build and Push User Service Docker Image
         uses: docker/build-push-action@v3
@@ -77,11 +77,11 @@ jobs:
       - name: Pull kirk006/e-commerzion-seller-service-db:latest
         run: docker pull kirk006/e-commerzion-seller-service-db:latest
 
-      - name: Tag and Push SellerService DB Image as Slave
+      - name: Tag and Push SellerService DB Image as master
         run: |
           docker tag kirk006/e-commerzion-seller-service-db:latest \
-            ${{ secrets.DOCKER_USERNAME }}/e-commerzion-seller-service-db:slave
-          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-seller-service-db:slave
+            ${{ secrets.DOCKER_USERNAME }}/e-commerzion-seller-service-db:master
+          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-seller-service-db:master
 
       - name: Build and Push Seller Service Docker Image
         uses: docker/build-push-action@v3
@@ -118,11 +118,11 @@ jobs:
       - name: Pull kirk006/e-commerzion-product-service-db:latest
         run: docker pull kirk006/e-commerzion-product-service-db:latest
 
-      - name: Tag and Push ProductService DB Image as Slave
+      - name: Tag and Push ProductService DB Image as master
         run: |
           docker tag kirk006/e-commerzion-product-service-db:latest \
-            ${{ secrets.DOCKER_USERNAME }}/e-commerzion-product-service-db:slave
-          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-product-service-db:slave
+            ${{ secrets.DOCKER_USERNAME }}/e-commerzion-product-service-db:master
+          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-product-service-db:master
 
       - name: Build and Push Product Service Docker Image
         uses: docker/build-push-action@v3
@@ -159,11 +159,11 @@ jobs:
       - name: Pull kirk006/e-commerzion-order-service-db:latest
         run: docker pull kirk006/e-commerzion-order-service-db:latest
 
-      - name: Tag and Push OrderService Image as Slave
+      - name: Tag and Push OrderService Image as master
         run: |
           docker tag kirk006/e-commerzion-order-service-db:latest \
-            ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-service-db:slave
-          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-service-db:slave
+            ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-service-db:master
+          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-service-db:master
 
       - name: Build and Push Order Service Docker Image
         uses: docker/build-push-action@v3
@@ -200,11 +200,11 @@ jobs:
       - name: Pull kirk006/e-commerzion-order-items-service-db:latest
         run: docker pull kirk006/e-commerzion-order-items-service-db:latest
 
-      - name: Tag and Push OrderItemsService DB Image as Slave
+      - name: Tag and Push OrderItemsService DB Image as master
         run: |
           docker tag kirk006/e-commerzion-order-items-service-db:latest \
-            ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-items-service-db:slave
-          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-items-service-db:slave
+            ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-items-service-db:master
+          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-items-service-db:master
 
       - name: Build and Push Order Items Service Docker Image
         uses: docker/build-push-action@v3
