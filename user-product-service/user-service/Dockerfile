@@ -14,14 +14,14 @@ RUN mvn dependency:go-offline -B
 COPY . . 
 
 # Build the application JAR without running tests
-WORKDIR /app/user-product-service/user-service
+WORKDIR /app/user-service
 RUN mvn clean package -DskipTests
 
 # Stage 2: Runtime
 FROM eclipse-temurin:17-jre-alpine
 
 # Set working directory for runtime
-WORKDIR /app
+WORKDIR /app/user-service
 
 # Copy the built JAR file from the build stage
 COPY --from=build /app/user-product-service/user-service/target/user-service-0.0.1.jar /app/app.jar
