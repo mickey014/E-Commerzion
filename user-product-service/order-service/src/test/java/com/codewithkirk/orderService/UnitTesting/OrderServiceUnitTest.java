@@ -7,12 +7,12 @@ import com.codewithkirk.orderService.Dto.OrderDto;
 import com.codewithkirk.orderService.Repository.OrderRepository;
 import com.codewithkirk.orderService.Model.Orders;
 import com.codewithkirk.orderService.Service.impl.OrderServiceImpl;
-import com.codewithkirk.orderService.ServiceClient.UserServiceClient;
+import com.codewithkirk.orderService.ServiceClient.Products.ProductServiceClient;
+import com.codewithkirk.orderService.ServiceClient.Users.UserServiceClient;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
@@ -32,6 +32,9 @@ public class OrderServiceUnitTest {
     private UserServiceClient userServiceClient;
 
     @Mock
+    private ProductServiceClient productServiceClient;
+
+    @Mock
     private OrderServiceUnitTest orderServiceUnitTest;
 
     @InjectMocks
@@ -42,6 +45,7 @@ public class OrderServiceUnitTest {
 
     private String orderId;
     private Long customerId = 1L;
+    private Long productId = 1L;
     private BigDecimal totalAmount;
     private String orderStatus;
     private String shippingAddress;
@@ -67,6 +71,7 @@ public class OrderServiceUnitTest {
         orderDto = new OrderDto(
                 orderId,
                 customerId,
+                productId,
                 totalAmount,
                 orderStatus,
                 shippingAddress,
@@ -79,6 +84,7 @@ public class OrderServiceUnitTest {
         newOrder = Orders.builder()
                 .orderId(orderId)
                 .customerId(customerId)
+                .productId(productId)
                 .totalAmount(totalAmount)
                 .orderStatus(orderStatus)
                 .shippingAddress(shippingAddress)
@@ -92,6 +98,10 @@ public class OrderServiceUnitTest {
     @Test
     @Order(1)
     void shouldCreateOrder() {
+
+        // Mock SellerServiceClient behavior
+        when(userServiceClient.getUserById(customerId)).thenReturn(null);
+        //when(productServiceClient.showProductById()).thenReturn(null);
 
         // Stub the repository save method to return the saved seller
         when(orderRepository.save(any(Orders.class))).thenReturn(newOrder);
@@ -146,6 +156,7 @@ public class OrderServiceUnitTest {
         Orders newOrder2 = Orders.builder()
                 .orderId(orderId)
                 .customerId(customerId)
+                .productId(productId)
                 .totalAmount(totalAmount)
                 .orderStatus(orderStatus)
                 .shippingAddress(shippingAddress)
@@ -220,6 +231,7 @@ public class OrderServiceUnitTest {
         OrderDto updatedOrderDto = new OrderDto(
                 orderId,
                 customerId,
+                productId,
                 totalAmount,
                 orderStatus,
                 shippingAddress,
@@ -232,6 +244,7 @@ public class OrderServiceUnitTest {
         Orders updatedOrder = Orders.builder()
                 .orderId(orderId)
                 .customerId(customerId)
+                .productId(productId)
                 .totalAmount(totalAmount)
                 .orderStatus(orderStatus)
                 .shippingAddress(shippingAddress)

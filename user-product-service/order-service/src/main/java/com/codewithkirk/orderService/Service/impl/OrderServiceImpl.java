@@ -5,7 +5,8 @@ import com.codewithkirk.orderService.Exception.OrderException;
 import com.codewithkirk.orderService.Model.Orders;
 import com.codewithkirk.orderService.Repository.OrderRepository;
 import com.codewithkirk.orderService.Service.OrderService;
-import com.codewithkirk.orderService.ServiceClient.UserServiceClient;
+import com.codewithkirk.orderService.ServiceClient.Products.ProductServiceClient;
+import com.codewithkirk.orderService.ServiceClient.Users.UserServiceClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final UserServiceClient userServiceClient;
+    private final ProductServiceClient productServiceClient;
 
     private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
@@ -39,6 +41,7 @@ public class OrderServiceImpl implements OrderService {
             logger.info("Received order with ID: {}", orderDto.getOrderId());
 
             Long customerId = orderDto.getCustomerId();
+            Long productId = orderDto.getProductId();
             BigDecimal totalAmount = orderDto.getTotalAmount();
             String orderStatus = orderDto.getOrderStatus().trim();
             String shippingAddress = orderDto.getShippingAddress().replaceAll("\\s+", " ").trim();
@@ -47,6 +50,9 @@ public class OrderServiceImpl implements OrderService {
             String shippingMethod = orderDto.getShippingMethod().trim();
             String trackingNumber = generateTrackingNumber().replaceAll("-", "").trim();
 
+            userServiceClient.getUserById(customerId);
+            productServiceClient.showProductById(productId);
+
             if (shippingAddress.isEmpty()) {
                 throw new OrderException("Shipping address is required.");
             }
@@ -54,6 +60,7 @@ public class OrderServiceImpl implements OrderService {
             Orders order = Orders.builder()
                     .orderId(orderDto.getOrderId())
                     .customerId(customerId)
+                    .productId(productId)
                     .totalAmount(totalAmount)
                     .orderStatus(orderStatus)
                     .shippingAddress(shippingAddress)
