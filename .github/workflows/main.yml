@@ -1,4 +1,4 @@
-name: Deploy to Production
+name: E-Commerzion Main Branch
 
 on:
   pull_request:
