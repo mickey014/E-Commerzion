@@ -5,14 +5,15 @@ FROM maven:3.8.8-eclipse-temurin-17-alpine AS build
 WORKDIR /app
 
 # Copy only the necessary Maven configuration files first (to leverage caching for dependencies)
-COPY /user-product-service/user-service/pom.xml /app/user-product-service/user-service/
+COPY user-product-service/user-service/pom.xml /app/user-product-service/user-service/
+COPY user-product-service/pom.xml /app/user-product-service/
 
 # Pre-download dependencies to optimize build time
 WORKDIR /app/user-product-service/user-service
 RUN mvn dependency:go-offline -B
 
 # Copy the entire source code
-COPY . .
+COPY . . 
 
 # Build the application JAR without running tests
 RUN mvn -f /app/user-product-service/user-service/pom.xml clean package -DskipTests
