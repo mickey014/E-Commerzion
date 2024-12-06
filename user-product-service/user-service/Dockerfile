@@ -2,11 +2,10 @@
 FROM maven:3.8.8-eclipse-temurin-17-alpine AS build
 
 # Set working directory for the build stage
-WORKDIR /app
+WORKDIR /app/user-service
 
 # Copy the Maven configuration files to leverage caching for dependencies
 COPY user-product-service/user-service/pom.xml /app/user-product-service/user-service/pom.xml
-COPY user-product-service/pom.xml /app/user-product-service/pom.xml
 
 # Pre-download dependencies to optimize build time
 RUN mvn dependency:go-offline -B
