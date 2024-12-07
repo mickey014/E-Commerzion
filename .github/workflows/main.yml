@@ -61,7 +61,11 @@ jobs:
           export JAVA_HOME
           export PATH=$JAVA_HOME/bin:$PATH
           java -version
-            
+          
+      - name: Maven clean install
+        run: mvn clean install -DskipTests
+        working-directory: user-product-service  # Replace with your correct directory
+        
       # Step 6: Run Integration Tests
       - name: Run Integration Tests
         run: mvn clean -B test -Dtest=IntegrationTesting/* --projects seller-service
