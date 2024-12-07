@@ -49,12 +49,17 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y openjdk-17-jdk
+          sudo update-alternatives --config java
           java -version
 
       - name: Set JAVA_HOME for Maven
         run: |
-          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" | sudo tee -a /etc/environment
+          source /etc/environment
+          export JAVA_HOME
           export PATH=$JAVA_HOME/bin:$PATH
+          java -version
+          mvn clean install
 
       # Step 6: Run Integration Tests
       - name: Run Integration Tests
