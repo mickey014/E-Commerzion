@@ -15,84 +15,60 @@ jobs:
         uses: actions/checkout@v3
 
       # Step 2: Ensure dev branch is updated
-      - name: Update dev branch
+      # - name: Update dev branch
+        # run: |
+          # git fetch origin dev
+          # git checkout dev
+          # git pull origin dev
+
+      # Step 3: Check if features branch is merged into dev
+      # - name: Check branch merge status
+        # run: |
+          # git fetch origin dev
+          # if ! git merge-base --is-ancestor origin/dev HEAD; then
+            # echo "This branch must be merged into 'dev' before being merged into 'main'."
+            # exit 1
+          # fi
+
+      - name: Install Docker (official script)
         run: |
-          git fetch origin dev
-          git checkout dev
-          git pull origin dev
-
-      # Step 3: Check if feature branch is merged into dev
-      - name: Check branch merge status
-        run: |
-          git fetch origin dev
-          if ! git merge-base --is-ancestor origin/dev HEAD; then
-            echo "This branch must be merged into 'dev' before being merged into 'main'."
-            exit 1
-          fi
-
-      # Step 4: Cache Maven dependencies to speed up builds
-      - name: Cache Maven dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-      # Step 5: Install Docker (official script)
-      - name: Install Docker
-        run: |
-          sudo curl -fsSL https://get.docker.com -o get-docker.sh
-          sudo sh get-docker.sh
-          sudo systemctl enable docker
-          sudo systemctl start docker
-          docker --version
-
-      # Step 6: Set up Docker Compose CLI plugin
-      - name: Set up Docker Compose CLI plugin
-        run: |
-          mkdir -p ~/.docker/cli-plugins/
-          curl -SL https://github.com/docker/compose/releases/download/v2.31.1/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
-          chmod +x ~/.docker/cli-plugins/docker-compose
-          docker-compose version
-
-      # Step 7: Run Docker Compose (Build and deploy containers in the background)
+            sudo curl -fsSL https://get.docker.com -o get-docker.sh
+            sudo sh get-docker.sh
+            sudo systemctl enable docker
+            sudo systemctl start docker
+            docker --version
+        
+      # Step 5: Run Docker Compose
       - name: Deploy with Docker Compose
         run: |
-          DOCKER_BUILDKIT=1 docker compose -f docker-compose.prod.yml up -d --build
+          docker compose -f docker-compose.prod.yml up -d
         env:
           DOCKER_BUILDKIT: 1  # Enable BuildKit for optimized builds
-
-      # Step 8: Install Java 17
+          
       - name: Install Java 17
         run: |
           sudo apt update
           sudo apt install -y openjdk-17-jdk
-          sudo update-alternatives --config java
-          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-          export PATH=$JAVA_HOME/bin:$PATH
           java -version
 
-      # Step 9: Set JAVA_HOME for Maven and skip tests during build
       - name: Set JAVA_HOME for Maven
         run: |
           echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" | sudo tee -a /etc/environment
           source /etc/environment
-          export JAVA_HOME
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
           export PATH=$JAVA_HOME/bin:$PATH
           java -version
-
-      # Step 10: Maven clean install (Skipping tests to save time)
+          
       - name: Maven clean install
         run: mvn clean install -DskipTests
-        working-directory: user-product-service  # Replace with the correct directory
-
-      # Step 11: Run Integration Tests
+        working-directory: user-product-service  # Replace with your correct directory
+        
+      # Step 6: Run Integration Tests
       - name: Run Integration Tests
         run: mvn clean -B test -Dtest=IntegrationTesting/* --projects seller-service
         working-directory: user-product-service
 
-      # Step 12: Clean up Docker Compose (optional but recommended)
+      # Step 7: Cleanup (Optional but recommended)
       - name: Clean up Docker Compose
         if: always()
         run: |
