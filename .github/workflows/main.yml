@@ -30,14 +30,15 @@ jobs:
             exit 1
           fi
 
-      # Step 4: Set up Docker CLI Compose plugin
-      - name: Set up Docker CLI Compose plugin
+      - name: Install Docker and fix containerd conflict
         run: |
-          sudo apt-get update
-          sudo apt-get install -y docker.io
-          sudo curl -SL https://github.com/docker/compose/releases/download/v2.31.1/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
-          sudo chmod +x ~/.docker/cli-plugins/docker-compose
-          docker compose version
+            sudo apt-get remove -y containerd
+            sudo apt-get update
+            sudo apt-get install -y docker.io
+            sudo systemctl enable docker
+            sudo systemctl start docker
+            docker --version
+
 
       # Step 5: Run Docker Compose
       - name: Deploy with Docker Compose
