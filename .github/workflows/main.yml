@@ -11,8 +11,8 @@ jobs:
 
     steps:
       # Step 1: Checkout repository
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      # - name: Checkout repository
+        # uses: actions/checkout@v3
 
       # Step 2: Ensure dev branch is updated
       # - name: Update dev branch
@@ -36,7 +36,6 @@ jobs:
             sudo sh get-docker.sh
             sudo systemctl enable docker
             sudo systemctl start docker
-            docker --version
         
       # Step 5: Run Docker Compose
       - name: Deploy with Docker Compose
@@ -47,21 +46,28 @@ jobs:
           
       - name: Install Java 17
         run: |
-          sudo apt update
           sudo apt install -y openjdk-17-jdk
-          java -version
-
+          
       - name: Set JAVA_HOME for Maven
         run: |
           echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
           source /etc/environmentnt
           export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
           export PATH=$JAVA_HOME/bin:$PATH
-          java -version
-          mvn clean -B test -Dtest=IntegrationTesting/* --projects user-service
           mvn clean -B test -Dtest=IntegrationTesting/* --projects seller-service
         working-directory: user-product-service  # Replace with your correct directory  
+
+      # - name: Set JAVA_HOME for Maven
+        # run: |
+          # echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
+          # source /etc/environmentnt
+          # export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          # export PATH=$JAVA_HOME/bin:$PATH
+          # java -version
+          # mvn clean -B test -Dtest=IntegrationTesting/* --projects seller-service
+        # working-directory: user-product-service  # Replace with your correct directory  
         
+
       # Step 7: Cleanup (Optional but recommended)
       - name: Clean up Docker Compose
         if: always()
