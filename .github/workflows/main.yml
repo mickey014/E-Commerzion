@@ -30,16 +30,14 @@ jobs:
             exit 1
           fi
 
-      - name: Install Docker and fix containerd conflict
+      - name: Install Docker (official script)
         run: |
-            sudo apt-get remove -y containerd
-            sudo apt-get update
-            sudo apt-get install -y docker.io
+            sudo curl -fsSL https://get.docker.com -o get-docker.sh
+            sudo sh get-docker.sh
             sudo systemctl enable docker
             sudo systemctl start docker
             docker --version
-
-
+        
       # Step 5: Run Docker Compose
       - name: Deploy with Docker Compose
         run: |
