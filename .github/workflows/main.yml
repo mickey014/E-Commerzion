@@ -30,17 +30,18 @@ jobs:
             exit 1
           fi
 
+      # Step 4: Set up Docker CLI Compose plugin
       - name: Set up Docker CLI Compose plugin
         run: |
-            mkdir -p ~/.docker/cli-plugins/
-            curl -SL https://github.com/docker/compose/releases/download/v2.31.1/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
-            chmod +x ~/.docker/cli-plugins/docker-compose
-            docker-compose version
+          mkdir -p ~/.docker/cli-plugins/
+          curl -SL https://github.com/docker/compose/releases/download/v2.31.1/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
+          chmod +x ~/.docker/cli-plugins/docker-compose
+          docker compose version
 
       # Step 5: Run Docker Compose
       - name: Deploy with Docker Compose
         run: |
-          docker-compose -f docker-compose.prod.yml up -d
+          docker compose -f docker-compose.prod.yml up -d
         env:
           DOCKER_BUILDKIT: 1  # Enable BuildKit for optimized builds
 
@@ -53,4 +54,4 @@ jobs:
       - name: Clean up Docker Compose
         if: always()
         run: |
-          docker-compose -f docker-compose.prod.yml down
+          docker compose -f docker-compose.prod.yml down
