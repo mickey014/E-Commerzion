@@ -30,6 +30,7 @@ jobs:
             exit 1
           fi
 
+      # Step 4: Install Docker (official script)
       - name: Install Docker (official script)
         run: |
             sudo curl -fsSL https://get.docker.com -o get-docker.sh
@@ -37,21 +38,43 @@ jobs:
             sudo systemctl enable docker
             sudo systemctl start docker
             docker --version
-        
-      # Step 5: Run Docker Compose
+
+      # Step 5: Ensure Docker is running
+      - name: Ensure Docker is running
+        run: |
+          sudo systemctl enable docker
+          sudo systemctl start docker
+          docker ps
+
+      # Step 6: Run Docker Compose
       - name: Deploy with Docker Compose
         run: |
-          docker compose -f docker-compose.prod.yml up -d
+          docker-compose -f docker-compose.prod.yml up -d
         env:
           DOCKER_BUILDKIT: 1  # Enable BuildKit for optimized builds
 
-      # Step 6: Run Integration Tests
+      # Step 7: Install Java 17
+      - name: Install Java 17
+        run: |
+          sudo apt update
+          sudo apt install -y openjdk-17-jdk
+          java -version
+
+      # Step 8: Set JAVA_HOME for Maven
+      - name: Set JAVA_HOME for Maven
+        run: |
+          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" | sudo tee -a /etc/environment
+          source /etc/environment
+          export JAVA_HOME
+          export PATH=$JAVA_HOME/bin:$PATH
+
+      # Step 9: Run Integration Tests
       - name: Run Integration Tests
         run: mvn clean -B test -Dtest=IntegrationTesting/* --projects seller-service
         working-directory: user-product-service
 
-      # Step 7: Cleanup (Optional but recommended)
+      # Step 10: Cleanup (Optional but recommended)
       - name: Clean up Docker Compose
         if: always()
         run: |
-          docker compose -f docker-compose.prod.yml down
+          docker-compose -f docker-compose.prod.yml down
