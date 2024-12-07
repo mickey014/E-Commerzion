@@ -14,7 +14,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Check if 'dev' branch is merged into 'main'
+      # Step 3: Check if features branch is merged into dev
       - name: Check branch merge status
         run: |
           git fetch origin dev
