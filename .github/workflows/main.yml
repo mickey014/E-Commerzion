@@ -53,19 +53,15 @@ jobs:
 
       - name: Set JAVA_HOME for Maven
         run: |
-          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" | sudo tee -a /etc/environment
-          source /etc/environment
+          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
+          source /etc/environmentnt
           export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
           export PATH=$JAVA_HOME/bin:$PATH
           java -version
+          mvn clean -B test -Dtest=IntegrationTesting/* --projects user-service
           mvn clean -B test -Dtest=IntegrationTesting/* --projects seller-service
         working-directory: user-product-service  # Replace with your correct directory  
         
-      # Step 6: Run Integration Tests
-      - name: Run Integration Tests
-        run: mvn clean -B test -Dtest=IntegrationTesting/* --projects seller-service
-        working-directory: user-product-service
-
       # Step 7: Cleanup (Optional but recommended)
       - name: Clean up Docker Compose
         if: always()
