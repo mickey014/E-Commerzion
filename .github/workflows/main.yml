@@ -58,9 +58,7 @@ jobs:
           export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
           export PATH=$JAVA_HOME/bin:$PATH
           java -version
-          
-      - name: Maven clean install
-        run: mvn clean install -DskipTests
+          run: mvn clean install -DskipTests
         working-directory: user-product-service  # Replace with your correct directory
         
       # Step 6: Run Integration Tests
