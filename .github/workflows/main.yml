@@ -10,9 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout repository
-      # - name: Checkout repository
-        # uses: actions/checkout@v3
+      Step 1: Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       # Step 2: Ensure dev branch is updated
       # - name: Update dev branch
