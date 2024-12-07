@@ -33,9 +33,10 @@ jobs:
       # Step 4: Set up Docker CLI Compose plugin
       - name: Set up Docker CLI Compose plugin
         run: |
-          mkdir -p ~/.docker/cli-plugins/
-          curl -SL https://github.com/docker/compose/releases/download/v2.31.1/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
-          chmod +x ~/.docker/cli-plugins/docker-compose
+          sudo apt-get update
+          sudo apt-get install -y docker.io
+          sudo curl -SL https://github.com/docker/compose/releases/download/v2.31.1/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
+          sudo chmod +x ~/.docker/cli-plugins/docker-compose
           docker compose version
 
       # Step 5: Run Docker Compose
@@ -45,7 +46,7 @@ jobs:
         env:
           DOCKER_BUILDKIT: 1  # Enable BuildKit for optimized builds
 
-      # Step 6: Integration Test
+      # Step 6: Run Integration Tests
       - name: Run Integration Tests
         run: mvn clean -B test -Dtest=IntegrationTesting/* --projects seller-service
         working-directory: user-product-service
