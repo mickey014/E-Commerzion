@@ -52,7 +52,7 @@ jobs:
       - name: Run UserService Integration Tests
         run: |
           echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
-          source /etc/environmentnt
+          source /etc/environment
           export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
           export PATH=$JAVA_HOME/bin:$PATH
           mvn clean -B test -Dtest=IntegrationTesting/* --projects user-service
@@ -61,7 +61,7 @@ jobs:
       - name: Run SellerService Integration Tests
         run: |
           echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
-          source /etc/environmentnt
+          source /etc/environment
           export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
           export PATH=$JAVA_HOME/bin:$PATH
           mvn clean -B test -Dtest=IntegrationTesting/* --projects seller-service
