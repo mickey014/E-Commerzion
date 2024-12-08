@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 public class OrderDto {
     private String orderId;
     private Long customerId;
+    private Long productId;
     private BigDecimal totalAmount;
     private String orderStatus;
     private String shippingAddress;
@@ -22,4 +23,5 @@ public class OrderDto {
     private String paymentStatus;
     private String shippingMethod;
     private String trackingNumber;
+
 }

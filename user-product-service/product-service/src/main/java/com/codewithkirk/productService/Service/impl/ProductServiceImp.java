@@ -99,6 +99,8 @@ public class ProductServiceImp implements ProductService{
     @Override
     public Products productPurchase(ProductPurchaseDto productPurchaseDto) {
         userServiceClient.getUserById(productPurchaseDto.getCustomerId());
+        showProductById(productPurchaseDto.getProductId());
+
         if(!isOrderServiceUp()) {
             throw new ProductOrderServiceUnavailableException("Order Service is down. Order processing aborted.");
         } else if(!isOrderItemsServiceUp()) {
@@ -110,6 +112,7 @@ public class ProductServiceImp implements ProductService{
         OrderDto orderDto = new OrderDto();
         orderDto.setOrderId(orderId);
         orderDto.setCustomerId(productPurchaseDto.getCustomerId());
+        orderDto.setProductId(productPurchaseDto.getProductId());
         orderDto.setOrderStatus("Pending");
         orderDto.setPaymentMethod(productPurchaseDto.getPaymentMethod());
         orderDto.setPaymentStatus(productPurchaseDto.getPaymentStatus());
@@ -119,7 +122,8 @@ public class ProductServiceImp implements ProductService{
 
 
 
-        List<OrderItemsDto> orderItems = convertToOrderItems(productPurchaseDto.getOrderItems(), orderId, orderDto.getCustomerId());
+        List<OrderItemsDto> orderItems = convertToOrderItems(productPurchaseDto.getOrderItems(),
+                orderId, orderDto.getCustomerId(), orderDto.getProductId());
         if (orderItems == null || orderItems.isEmpty()) {
             throw new IllegalArgumentException("Order items cannot be null or empty");
         }
@@ -290,13 +294,14 @@ public class ProductServiceImp implements ProductService{
 
     private List<OrderItemsDto> convertToOrderItems(List<ProductItemsDto> productItems,
                                                     String orderId,
-                                                    Long customerId) {
+                                                    Long customerId,
+                                                    Long productId) {
         List<OrderItemsDto> orderItems = new ArrayList<>();
         for (ProductItemsDto productItem : productItems) {
             OrderItemsDto orderItem = new OrderItemsDto();
             orderItem.setOrderId(orderId);
             orderItem.setCustomerId(customerId);
-            orderItem.setProductId(productItem.getProductId());
+            orderItem.setProductId(productId);
             orderItem.setQuantity(productItem.getQuantity());
             orderItem.setUnitPrice(productItem.getUnitPrice());
             orderItem.setTotalPrice(productItem.getUnitPrice().multiply(BigDecimal.valueOf(productItem.getQuantity())));

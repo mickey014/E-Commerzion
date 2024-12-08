@@ -2,9 +2,11 @@ name: E-Commerzion - Dev Branch
 
 on:
   push:
-    branches: [ "dev" ]
+    branches:
+      - dev
   pull_request:
-    branches: [ "dev" ]
+    branches:
+      - dev
 
 jobs:
   user-service:
@@ -21,253 +23,202 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Create Docker Network
-        run: docker network create e-commerzion-network || true
-
-      - name: Run PostgreSQL for User Service
-        run: |
-          docker run -d --name user-service-db --network e-commerzion-network \
-          -e POSTGRES_USER=postgres \
-          -e POSTGRES_PASSWORD=test \
-          -e POSTGRES_DB=user_service \
-          -p 5432:5432 kirk006/e-commerzion-user-service-db:latest
-
-      - name: Wait for User Service DB to Start
-        run: |
-          echo "Waiting for user-service-db ..."
-          until docker exec user-service-db pg_isready -U postgres -d user_service; do
-            echo "Waiting for user_service database..."
-            sleep 5
-          done
-          echo "User Service database is ready."
-
-      - name: Build User Service
-        run: mvn -B clean verify --projects user-service
+      - name: Run Unit Tests
+        run: mvn clean -B test -Dtest=UnitTesting/* --projects user-service
         working-directory: user-product-service
 
-      - name: Clean Up Docker Containers
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          
+      - name: Pull kirk006/e-commerzion-user-service-db:latest
+        run: docker pull kirk006/e-commerzion-user-service-db:latest
+
+      - name: Tag and Push UserService DB Image as master
         run: |
-          docker stop user-service-db || true
-          docker rm user-service-db || true
+          docker tag kirk006/e-commerzion-user-service-db:latest \
+            ${{ secrets.DOCKER_USERNAME }}/e-commerzion-user-service-db:master
+          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-user-service-db:master
 
-      - name: Clean Up Docker Network
-        run: docker network rm e-commerzion-network || true
-
-  # seller-service:
-    # runs-on: ubuntu-latest
-
-    # steps:
-      # - name: Checkout Code
-        # uses: actions/checkout@v4
-
-      # - name: Set up JDK 17
-        # uses: actions/setup-java@v4
-        # with:
-          # java-version: '17'
-          # distribution: 'temurin'
-          # cache: maven
-
-      # - name: Create Docker Network
-        # run: docker network create e-commerzion-network || true
-        
-      # - name: Run PostgreSQL Databases
-        # run: |
-          # docker run -d --name user-service-db --network e-commerzion-network \
-          # -e POSTGRES_USER=postgres \
-          # -e POSTGRES_PASSWORD=test \
-          # -e POSTGRES_DB=user_service \
-          # -p 5432:5432 kirk006/e-commerzion-user-service-db:latest
-          # docker run -d --name seller-service-db --network e-commerzion-network \
-          # -e POSTGRES_USER=postgres \
-          # -e POSTGRES_PASSWORD=test \
-          # -e POSTGRES_DB=seller_service \
-          # -p 5433:5432 kirk006/e-commerzion-seller-service-db:latest
-
-      # - name: Wait for PostgreSQL Databases to Start
-        # run: |
-          # echo "Waiting for user-service-db..."
-          # until docker exec user-service-db pg_isready -U postgres -d user_service; do
-            # echo "Waiting for user_service database..."
-            # sleep 5
-          # done &
+      - name: Build and Push User Service Docker Image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: user-product-service/user-service/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-user-service-app:dev
           
-          # echo "Waiting for seller-service-db..."
-          # until docker exec seller-service-db pg_isready -U postgres -d seller_service; do
-            # echo "Waiting for seller_service database..."
-            # sleep 5
-          # done &
-          
-          # wait
-          # echo "PostgreSQL databases are ready."
-          
-      # - name: Pull and Run User Service App
-        # run: |
-          # docker run -d --name user-service-app --network e-commerzion-network -p 8001:8001 \
-          # --env SPRING_DATASOURCE_URL=jdbc:postgresql://user-service-db:5432/user_service \
-          # --env SPRING_DATASOURCE_USERNAME=postgres \
-          # --env SPRING_DATASOURCE_PASSWORD=test \
-          # kirk006/e-commerzion-user-service-app:latest
-          
-      # - name: Wait for User Service App to Start
-        # run: |
-          # echo "Waiting for user-service to start..."
-          # until curl -s http://user-service-app:8001/api/v1/users/1; do
-            # echo "Waiting for user-service-app..."
-            # sleep 5
-          # done
-          # echo "user-service-app is running."
-          
-      # - name: Create a User in User Service App
-        # run: |
-          # echo "Creating a user in user-service-app..."
-          # curl -X POST http://user-service-app:8001/api/v1/users/register \
-               # -H "Content-Type: application/json" \
-               # -d '{
-                   # "name": "John Doe",
-                   # "username": "johndoe@gmail.com",
-                   # "password": "test",
-                   # "confirmPassword": "test"
-               # }'  
+  seller-service:
+    runs-on: ubuntu-latest
 
-      # - name: Build Seller Service
-        # run: mvn -B clean verify --projects seller-service
-        # working-directory: user-product-service
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      # - name: Clean Up Docker Containers
-        # run: |
-          # docker stop user-service-app user-service-db seller-service-db || true
-          # docker rm user-service-app user-service-db seller-service-db || true
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
 
-      # - name: Clean Up Docker Network
-        # run: docker network rm e-commerzion-network || true
+      - name: Run Unit Tests
+        run: mvn clean -B test -Dtest=UnitTesting/* --projects seller-service
+        working-directory: user-product-service
 
-  # product-service:
-    # runs-on: ubuntu-latest
-
-    # steps:
-      # - name: Checkout Code
-        # uses: actions/checkout@v4
-
-      # - name: Set up JDK 17
-        # uses: actions/setup-java@v4
-        # with:
-          # java-version: '17'
-          # distribution: 'temurin'
-          # cache: maven
-
-      # - name: Create Docker Network
-        # run: docker network create e-commerzion-network || true
-
-      # - name: Run PostgreSQL Databases
-        # run: |
-          # docker run -d --name user-service-db --network e-commerzion-network \
-          # -e POSTGRES_USER=postgres \
-          # -e POSTGRES_PASSWORD=test \
-          # -e POSTGRES_DB=user_service \
-          # -p 5432:5432 kirk006/e-commerzion-user-service-db:latest
-          # docker run -d --name seller-service-db --network e-commerzion-network \
-          # -e POSTGRES_USER=postgres \
-          # -e POSTGRES_PASSWORD=test \
-          # -e POSTGRES_DB=seller_service \
-          # -p 5433:5432 kirk006/e-commerzion-seller-service-db:latest
-          # docker run -d --name product-service-db --network e-commerzion-network \
-          # -e POSTGRES_USER=postgres \
-          # -e POSTGRES_PASSWORD=test \
-          # -e POSTGRES_DB=product_service \
-          # -p 5434:5432 postgres:14-alpine
-
-      # - name: Wait for PostgreSQL Databases to Start
-        # run: |
-          # echo "Waiting for user-service-db..."
-          # until docker exec user-service-db pg_isready -U postgres -d user_service; do
-            # echo "Waiting for user_service database..."
-            # sleep 5
-          # done &
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
           
-          # echo "Waiting for seller-service-db..."
-          # until docker exec seller-service-db pg_isready -U postgres -d seller_service; do
-            # echo "Waiting for seller_service database..."
-            # sleep 5
-          # done &
-          
-          # echo "Waiting for product-service-db..."
-          # until docker exec product-service-db pg_isready -U postgres -d product_service; do
-            # echo "Waiting for product_service database..."
-            # sleep 5
-          # done &
-          
-          # wait
-          # echo "PostgreSQL databases are ready."
-          
-      # - name: Pull and Run User Service App
-        # run: |
-          # docker run -d --name user-service-app --network e-commerzion-network -p 8001:8001 \
-          # --env SPRING_DATASOURCE_URL=jdbc:postgresql://user-service-db:5432/user_service \
-          # --env SPRING_DATASOURCE_USERNAME=postgres \
-          # --env SPRING_DATASOURCE_PASSWORD=test \
-          # kirk006/e-commerzion-user-service-app:latest
-          
-      # - name: Pull and Run Seller Service App
-        # run: |
-          # docker run -d --name seller-service-app --network e-commerzion-network -p 8101:8101 \
-          # --env SPRING_DATASOURCE_URL=jdbc:postgresql://seller-service-db:5432/seller_service \
-          # --env SPRING_DATASOURCE_USERNAME=postgres \
-          # --env SPRING_DATASOURCE_PASSWORD=test \
-          # kirk006/e-commerzion-seller-service-app:latest
-          
-      # - name: Wait for User Service App to Start
-        # run: |
-          # echo "Waiting for user-service-app to start..."
-          # until curl -s http://localhost:8001/api/v1/users/1; do
-            # echo "Waiting for user-service-app..."
-            # sleep 5
-          # done
-          # echo "user-service-app is running."
-          
-      # - name: Wait for Seller Service App to Start
-        # run: |
-          # echo "Waiting for seller-service-app to start..."
-          # until curl -s http://localhost:8101/api/v1/sellers/user/1/seller/1; do
-            # echo "Waiting for seller-service-app..."
-            # sleep 5
-          # done
-          # echo "seller-service-app is running."
-          
-      # - name: Create a User in User Service App
-        # run: |
-          # echo "Creating a user in user-service-app..."
-          # curl -X POST http://localhost:8001/api/v1/users/register \
-               # -H "Content-Type: application/json" \
-               # -d '{
-                   # "name": "John Doe",
-                   # "username": "johndoe@gmail.com",
-                   # "password": "test",
-                   # "confirmPassword": "test"
-               # }'  
-               
-      # - name: Create a Seller in Seller Service App
-        # run: |
-          # echo "Creating a seller in seller-service-app..."
-          # curl -X POST http://localhost:8101/api/v1/sellers/register \
-               # -H "Content-Type: application/json" \
-               # -d '{
-                    # "userId": 1,
-                    # "sellerName": "John Doe",
-                    # "storeName": "J Doe Tech Shop",
-                    # "email": "johndoe@gmail.com",
-                    # "phoneNumber": "00000000000",
-                    # "location": "John St.",
-                    # "photoUrl": "https://jdoe.dev.com"
-               # }'  
+      - name: Pull kirk006/e-commerzion-seller-service-db:latest
+        run: docker pull kirk006/e-commerzion-seller-service-db:latest
 
-      # - name: Build Product Service
-        # run: mvn -B clean verify --projects product-service
-        # working-directory: user-product-service
+      - name: Tag and Push SellerService DB Image as master
+        run: |
+          docker tag kirk006/e-commerzion-seller-service-db:latest \
+            ${{ secrets.DOCKER_USERNAME }}/e-commerzion-seller-service-db:master
+          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-seller-service-db:master
 
-      # - name: Clean Up Docker Containers
-        # run: |
-          # docker stop user-service-db seller-service-db product-service-db || true
-          # docker rm user-service-db seller-service-db product-service-db || true
+      - name: Build and Push Seller Service Docker Image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: user-product-service/seller-service/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-seller-service-app:dev
+          
+  product-service:
+    runs-on: ubuntu-latest
 
-      # - name: Clean Up Docker Network
-        # run: docker network rm e-commerzion-network || true
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run Unit Tests
+        run: mvn clean -B test -Dtest=UnitTesting/* --projects product-service
+        working-directory: user-product-service
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          
+      - name: Pull kirk006/e-commerzion-product-service-db:latest
+        run: docker pull kirk006/e-commerzion-product-service-db:latest
+
+      - name: Tag and Push ProductService DB Image as master
+        run: |
+          docker tag kirk006/e-commerzion-product-service-db:latest \
+            ${{ secrets.DOCKER_USERNAME }}/e-commerzion-product-service-db:master
+          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-product-service-db:master
+
+      - name: Build and Push Product Service Docker Image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: user-product-service/product-service/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-product-service-app:dev
+  
+  order-service:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run Unit Tests
+        run: mvn clean -B test -Dtest=UnitTesting/* --projects order-service
+        working-directory: user-product-service
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          
+      - name: Pull kirk006/e-commerzion-order-service-db:latest
+        run: docker pull kirk006/e-commerzion-order-service-db:latest
+
+      - name: Tag and Push OrderService Image as master
+        run: |
+          docker tag kirk006/e-commerzion-order-service-db:latest \
+            ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-service-db:master
+          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-service-db:master
+
+      - name: Build and Push Order Service Docker Image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: user-product-service/order-service/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-service-app:dev
+          
+  order-items-service:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run Unit Tests
+        run: mvn clean -B test -Dtest=UnitTesting/* --projects order-items-service
+        working-directory: user-product-service
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          
+      - name: Pull kirk006/e-commerzion-order-items-service-db:latest
+        run: docker pull kirk006/e-commerzion-order-items-service-db:latest
+
+      - name: Tag and Push OrderItemsService DB Image as master
+        run: |
+          docker tag kirk006/e-commerzion-order-items-service-db:latest \
+            ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-items-service-db:master
+          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-items-service-db:master
+
+      - name: Build and Push Order Items Service Docker Image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: user-product-service/order-items-service/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-items-service-app:dev
+          
+      - name: Pull RabbitMQ Image
+        run: docker pull kirk006/e-commerzion-rabbitmq:latest
+          
+      - name: Tag and Push RabbitMQ Image
+        run: |
+          docker tag kirk006/e-commerzion-rabbitmq:latest \
+            ${{ secrets.DOCKER_USERNAME }}/e-commerzion-rabbitmq
+          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-rabbitmq

@@ -31,7 +31,7 @@ public class OrderItemsServiceImpl implements OrderItemsService {
 
     private static final Logger logger = LoggerFactory.getLogger(OrderItemsServiceImpl.class);
 
-    @RabbitListener(queues = ORDER_ITEMS_QUEUE)
+    @RabbitListener(queues = ORDER_ITEMS_QUEUE, containerFactory = "rabbitListenerContainerFactory")
     @Override
     public void createOrderItems(OrderItemsDto orderItemsDto) {
 

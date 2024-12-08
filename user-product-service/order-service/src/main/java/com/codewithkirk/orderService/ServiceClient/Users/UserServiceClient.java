@@ -1,4 +1,4 @@
-package com.codewithkirk.orderService.ServiceClient;
+package com.codewithkirk.orderService.ServiceClient.Users;
 
 import com.codewithkirk.orderService.Dto.OrderDto;
 import org.springframework.cloud.openfeign.FeignClient;

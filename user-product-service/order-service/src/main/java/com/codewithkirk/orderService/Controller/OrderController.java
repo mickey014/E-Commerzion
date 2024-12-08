@@ -52,6 +52,7 @@ public class OrderController {
             OrderDto orderDto = new OrderDto(
                     foundOrder.getOrderId(),
                     foundOrder.getCustomerId(),
+                    foundOrder.getProductId(),
                     foundOrder.getTotalAmount(),
                     foundOrder.getOrderStatus(),
                     foundOrder.getShippingAddress(),
@@ -95,6 +96,7 @@ public class OrderController {
             OrderDto orderDto = new OrderDto(
                 foundOrder.getOrderId(),
                 foundOrder.getCustomerId(),
+                foundOrder.getProductId(),
                 foundOrder.getTotalAmount(),
                 foundOrder.getOrderStatus(),
                 foundOrder.getShippingAddress(),

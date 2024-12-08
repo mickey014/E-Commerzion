@@ -22,6 +22,8 @@ public class Orders {
 
     private Long customerId;
 
+    private Long productId;
+
     @Column(columnDefinition = "TIMESTAMP(0) DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime orderAt;
 

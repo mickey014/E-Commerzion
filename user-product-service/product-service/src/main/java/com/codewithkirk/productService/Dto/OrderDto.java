@@ -15,6 +15,7 @@ import java.util.List;
 public class OrderDto implements Serializable {
     private String orderId;
     private Long customerId;
+    private Long productId;
     private String orderStatus;
     private String paymentMethod;
     private String paymentStatus;
