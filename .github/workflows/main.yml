@@ -29,11 +29,11 @@ jobs:
             sudo systemctl start docker
             docker --version
         
-      - name: Run Docker Compose production
-        run: |
-          docker compose -f docker-compose.prod.yml up -d
-        env:
-          DOCKER_BUILDKIT: 1  # Enable BuildKit for optimized builds
+      # - name: Run Docker Compose production
+        # run: |
+          # docker compose -f docker-compose.prod.yml up -d
+        # env:
+          # DOCKER_BUILDKIT: 1  # Enable BuildKit for optimized builds
           
       - name: Install Java 17
         run: |
@@ -74,6 +74,9 @@ jobs:
           export PATH=$JAVA_HOME/bin:$PATH
           echo "127.0.0.1 user-service-app" | sudo tee -a /etc/hosts
           echo "127.0.0.1 seller-service-app" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 product-service-app" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 order-service-app" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 order-items-service-app" | sudo tee -a /etc/hosts
           curl -X POST http://user-service-app:8001/api/v1/users/register \
             -H "Content-Type: application/json" \
             -d '{
