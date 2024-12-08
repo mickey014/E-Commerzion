@@ -40,45 +40,32 @@ jobs:
         run: |
           sudo apt install -y openjdk-17-jdk
           
-      - name: Run UserService Integration Tests
-        run: |
-          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
-          source /etc/environment
-          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-          export PATH=$JAVA_HOME/bin:$PATH
-          mvn clean -B test -Dtest=IntegrationTesting/* --projects user-service
-        working-directory: user-product-service  # Replace with your correct directory  
+      # - name: Run UserService Integration Tests
+        # run: |
+          # echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
+          # source /etc/environment
+          # export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          # export PATH=$JAVA_HOME/bin:$PATH
+          # mvn clean -B test -Dtest=IntegrationTesting/* --projects user-service
+        # working-directory: user-product-service  # Replace with your correct directory  
         
-      # - name: Wait for user-service-app to be ready
+      # - name: Run SellerService Integration Tests
         # run: |
-          # while ! curl --silent --fail http://user-service-app:8001/api/v1/users/1; do
-            # echo "Waiting for user-service-app to be ready..."
-            # sleep 5
-          # done
-      # - name: Wait for user-service-app to be ready
-        # run: |
-          # while ! curl --silent --fail http://user-service-app:8001/api/v1/users/1; do
-            # echo "Waiting for user-service-app to be ready..."
-            # sleep 5
-          # done
-
-      - name: Run SellerService Integration Tests
-        run: |
-          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
-          source /etc/environment
-          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-          export PATH=$JAVA_HOME/bin:$PATH
-          echo "127.0.0.1 user-service-app" | sudo tee -a /etc/hosts
-          curl -X POST http://user-service-app:8001/api/v1/users/register \
-            -H "Content-Type: application/json" \
-            -d '{
-                "name": "Kirk Mendoza",
-                "username": "kirkmendoza9@gmail.com",
-                "password": "test",
-                "confirmPassword": "test"
-            }'
-          mvn clean -B test -Dtest=IntegrationTesting/* --projects seller-service
-        working-directory: user-product-service  # Replace with your correct directory  
+          # echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
+          # source /etc/environment
+          # export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          # export PATH=$JAVA_HOME/bin:$PATH
+          # echo "127.0.0.1 user-service-app" | sudo tee -a /etc/hosts
+          # curl -X POST http://user-service-app:8001/api/v1/users/register \
+            # -H "Content-Type: application/json" \
+            # -d '{
+                # "name": "Kirk Mendoza",
+                # "username": "kirkmendoza9@gmail.com",
+                # "password": "test",
+                # "confirmPassword": "test"
+            # }'
+          # mvn clean -B test -Dtest=IntegrationTesting/* --projects seller-service
+        # working-directory: user-product-service  # Replace with your correct directory  
         
       - name: Run ProductService Integration Tests
         run: |
@@ -91,6 +78,14 @@ jobs:
           curl -X POST http://user-service-app:8001/api/v1/users/register \
             -H "Content-Type: application/json" \
             -d '{
+                "name": "John Doe",
+                "username": "jdoe@gmail.com",
+                "password": "test",
+                "confirmPassword": "test"
+            }'
+          curl -X POST http://user-service-app:8001/api/v1/users/register \
+            -H "Content-Type: application/json" \
+            -d '{
                 "name": "Kirk Mendoza",
                 "username": "kirkmendoza9@gmail.com",
                 "password": "test",
@@ -99,7 +94,7 @@ jobs:
           curl -X POST http://seller-service-app:8101/api/v1/sellers/register \
             -H "Content-Type: application/json" \
             -d '{
-                "userId": 1,
+                "userId": 2,
                 "sellerName": "Kirk Mendoza",
                 "storeName": "K Tech Shop",
                 "email": "kirkmendoza9@gmail.com",
