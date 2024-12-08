@@ -39,23 +39,23 @@ jobs:
         run: |
           sudo apt install -y openjdk-17-jdk
           
-      - name: Set up Java environment
-        run: |
-          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-          export PATH=$JAVA_HOME/bin:$PATH
+      # - name: Set up Java environment
+        # run: |
+          # export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          # export PATH=$JAVA_HOME/bin:$PATH
           
       # Update /etc/hosts file
-      - name: Configure Hostnames
-        run: |
-          echo "127.0.0.1 user-service-app" | sudo tee -a /etc/hosts
-          echo "127.0.0.1 seller-service-app" | sudo tee -a /etc/hosts
-          echo "127.0.0.1 product-service-app" | sudo tee -a /etc/hosts
-          echo "127.0.0.1 order-service-app" | sudo tee -a /etc/hosts
-          echo "127.0.0.1 order-items-service-app" | sudo tee -a /etc/hosts
+      # - name: Configure Hostnames
+        # run: |
+          # echo "127.0.0.1 seller-service-app" | sudo tee -a /etc/hosts
+          # echo "127.0.0.1 product-service-app" | sudo tee -a /etc/hosts
+          # echo "127.0.0.1 order-service-app" | sudo tee -a /etc/hosts
+          # echo "127.0.0.1 order-items-service-app" | sudo tee -a /etc/hosts
           
       # Register users with user-service-app
       - name: Register Users
         run: |
+          echo "127.0.0.1 user-service-app" | sudo tee -a /etc/hosts
           curl -X POST http://user-service-app:8001/api/v1/users/register \
             -H "Content-Type: application/json" \
             -d '{
@@ -90,16 +90,22 @@ jobs:
           
       - name: Run UserService Integration Tests
         run: |
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          export PATH=$JAVA_HOME/bin:$PATH
           mvn clean -B test -Dtest=IntegrationTesting/* --projects user-service
         working-directory: user-product-service  # Replace with your correct directory  
         
       - name: Run SellerService Integration Tests
         run: |
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          export PATH=$JAVA_HOME/bin:$PATH
           mvn clean -B test -Dtest=IntegrationTesting/* --projects seller-service
         working-directory: user-product-service  # Replace with your correct directory  
         
       - name: Run ProductService Integration Tests
         run: |
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          export PATH=$JAVA_HOME/bin:$PATH
           mvn clean -B test -Dtest=IntegrationTesting/* --projects product-service
         working-directory: user-product-service  # Replace with your correct directory 
         
