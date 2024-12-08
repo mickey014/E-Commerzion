@@ -29,11 +29,11 @@ jobs:
             sudo systemctl start docker
             docker --version
         
-      # - name: Run Docker Compose production
-        # run: |
-          # docker compose -f docker-compose.prod.yml up -d
-        # env:
-          # DOCKER_BUILDKIT: 1  # Enable BuildKit for optimized builds
+      - name: Run Docker Compose production
+        run: |
+          docker compose -f docker-compose.prod.yml up -d
+        env:
+          DOCKER_BUILDKIT: 1  # Enable BuildKit for optimized builds
           
       - name: Install Java 17
         run: |
