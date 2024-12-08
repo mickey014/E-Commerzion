@@ -39,21 +39,23 @@ jobs:
         run: |
           sudo apt install -y openjdk-17-jdk
           
-      - name: Curl or register
+      - name: Set up Java environment
         run: |
-          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
-          source /etc/environment
           export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
           export PATH=$JAVA_HOME/bin:$PATH
+          
+      # Update /etc/hosts file
+      - name: Configure Hostnames
+        run: |
           echo "127.0.0.1 user-service-app" | sudo tee -a /etc/hosts
           echo "127.0.0.1 seller-service-app" | sudo tee -a /etc/hosts
           echo "127.0.0.1 product-service-app" | sudo tee -a /etc/hosts
           echo "127.0.0.1 order-service-app" | sudo tee -a /etc/hosts
           echo "127.0.0.1 order-items-service-app" | sudo tee -a /etc/hosts
-          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
-          source /etc/environment
-          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-          export PATH=$JAVA_HOME/bin:$PATH
+          
+      # Register users with user-service-app
+      - name: Register Users
+        run: |
           curl -X POST http://user-service-app:8001/api/v1/users/register \
             -H "Content-Type: application/json" \
             -d '{
@@ -61,7 +63,7 @@ jobs:
                 "username": "jdoe@gmail.com",
                 "password": "test",
                 "confirmPassword": "test"
-            }'
+            }' || echo "Failed to register user John Doe"
           curl -X POST http://user-service-app:8001/api/v1/users/register \
             -H "Content-Type: application/json" \
             -d '{
@@ -69,7 +71,11 @@ jobs:
                 "username": "kirkmendoza9@gmail.com",
                 "password": "test",
                 "confirmPassword": "test"
-            }'
+            }' || echo "Failed to register user Kirk Mendoza"
+            
+      # Register seller with seller-service-app
+      - name: Register Seller
+        run: |
           curl -X POST http://seller-service-app:8101/api/v1/sellers/register \
             -H "Content-Type: application/json" \
             -d '{
@@ -80,32 +86,20 @@ jobs:
                 "phoneNumber": "093098001034",
                 "location": "Kirk St.",
                 "photoUrl": "https://kirk.dev.com"
-            }'
+            }' || echo "Failed to register seller Kirk Mendoza"
           
       - name: Run UserService Integration Tests
         run: |
-          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
-          source /etc/environment
-          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-          export PATH=$JAVA_HOME/bin:$PATH
           mvn clean -B test -Dtest=IntegrationTesting/* --projects user-service
         working-directory: user-product-service  # Replace with your correct directory  
         
       - name: Run SellerService Integration Tests
         run: |
-          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
-          source /etc/environment
-          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-          export PATH=$JAVA_HOME/bin:$PATH
           mvn clean -B test -Dtest=IntegrationTesting/* --projects seller-service
         working-directory: user-product-service  # Replace with your correct directory  
         
       - name: Run ProductService Integration Tests
         run: |
-          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
-          source /etc/environment
-          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-          export PATH=$JAVA_HOME/bin:$PATH
           mvn clean -B test -Dtest=IntegrationTesting/* --projects product-service
         working-directory: user-product-service  # Replace with your correct directory 
         
