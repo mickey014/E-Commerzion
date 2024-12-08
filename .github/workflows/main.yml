@@ -49,12 +49,18 @@ jobs:
           mvn clean -B test -Dtest=IntegrationTesting/* --projects user-service
         working-directory: user-product-service  # Replace with your correct directory  
         
-      - name: Wait for user-service-app to be ready
-        run: |
-          while ! curl --silent --fail http://user-service-app:8001/api/v1/users/1; do
-            echo "Waiting for user-service-app to be ready..."
-            sleep 5
-          done
+      # - name: Wait for user-service-app to be ready
+        # run: |
+          # while ! curl --silent --fail http://user-service-app:8001/api/v1/users/1; do
+            # echo "Waiting for user-service-app to be ready..."
+            # sleep 5
+          # done
+      # - name: Wait for user-service-app to be ready
+        # run: |
+          # while ! curl --silent --fail http://user-service-app:8001/api/v1/users/1; do
+            # echo "Waiting for user-service-app to be ready..."
+            # sleep 5
+          # done
 
       - name: Run SellerService Integration Tests
         run: |
