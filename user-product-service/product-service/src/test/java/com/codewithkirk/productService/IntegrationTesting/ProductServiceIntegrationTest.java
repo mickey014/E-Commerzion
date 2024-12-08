@@ -351,7 +351,8 @@ public class ProductServiceIntegrationTest extends ProductServiceIntegrationTest
     void shouldUpdateProduct() {
         System.out.println("Connected to " + postgreSqlContainer.getDatabaseName() + " Integration test");
 
-        sellerServiceClient.getSellerByUserIdAndSellerId(userId,sellerId);
+        sellerServiceClient.getSellerByUserIdAndSellerId(productDto.getUserId(),
+                productDto.getSellerId());
 
         Long productId = 1L;
         Long sellerId = 1L;
@@ -418,7 +419,8 @@ public class ProductServiceIntegrationTest extends ProductServiceIntegrationTest
     void shouldForceDeleteProduct() {
         System.out.println("Connected to " + postgreSqlContainer.getDatabaseName() + " Integration test");
 
-        sellerServiceClient.getSellerByUserIdAndSellerId(userId,sellerId);
+        sellerServiceClient.getSellerByUserIdAndSellerId(productDto.getUserId(),
+                productDto.getSellerId());
 
         // Act: Call the method
         productServiceImp.forceDeleteProduct(userId, sellerId, productId);
