@@ -20,7 +20,7 @@ jobs:
           git fetch origin dev
           git checkout dev
           git pull origin dev
-
+  
       - name: Install Docker (official script)
         run: |
             sudo curl -fsSL https://get.docker.com -o get-docker.sh
@@ -73,7 +73,6 @@ jobs:
           mvn clean -B test -Dtest=IntegrationTesting/* --projects seller-service
         working-directory: user-product-service  # Replace with your correct directory  
         
-
       # Step 7: Cleanup (Optional but recommended)
       - name: Clean up Docker Compose
         if: always()
