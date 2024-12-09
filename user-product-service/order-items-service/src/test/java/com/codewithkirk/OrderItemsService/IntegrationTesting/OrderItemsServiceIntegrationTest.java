@@ -53,10 +53,10 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
 
     private OrderItems newOrderItems;
 
-    private Long orderItemsId;
+    private Long orderItemsId = 1L;
     private String orderId;
-    private Long customerId;
-    private Long productId;
+    private Long customerId = 1L;
+    private Long productId = 1L;
 
     private Integer quantity;
     private BigDecimal unitPrice;
@@ -64,10 +64,7 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
 
     @BeforeEach
     void setUp() {
-        orderItemsId = 1L;
         //orderId = "4a202918";
-        customerId = 1L;
-        productId = 1L;
         quantity = 2;
         unitPrice = BigDecimal.valueOf(100.50);
         totalPrice = BigDecimal.valueOf(201.00);
@@ -130,7 +127,7 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
         List<OrderItems> orderItems = Arrays.asList(newOrderItems);
 
         // Act: Call the method
-        List<OrderItems> result = orderItemsServiceImpl.getAllOrderItemsDetailsByCustomerId(orderItemsDto.getCustomerId());
+        List<OrderItems> result = orderItemsServiceImpl.getAllOrderItemsDetailsByCustomerId(customerId);
 
         // Assert: Verify the result
         assertNotNull(result);
