@@ -104,8 +104,9 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
         }
     }
 
-    //@Test
-    //@Order(1)
+    @RabbitListener(queues = ORDER_ITEMS_QUEUE, containerFactory = "rabbitListenerContainerFactory")
+    @Test
+    @Order(1)
     void shouldcreateOrderItems() {
         // userServiceClient.getUserById(customerId);
         // productServiceClient.showProductById(productId);
@@ -131,6 +132,7 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
 
         List<OrderItems> orderItems = Arrays.asList(newOrderItems);
         logger.info("Received order with ID: {}", orderItemsDto.getOrderId());
+
         
         System.out.println(orderItemsId);
         System.out.println(orderId);
