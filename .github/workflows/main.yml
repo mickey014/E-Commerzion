@@ -91,7 +91,7 @@ jobs:
             
       - name: Curl Request Body for Product Service
         run: |
-          curl -X POST http://seller-service-app:8201/api/v1/products \
+          curl -X POST http://product-service-app:8201/api/v1/products \
             -H "Content-Type: application/json" \
             -d '{
                 "userId": 2,
@@ -105,7 +105,7 @@ jobs:
             
       - name: Curl Request Body for Order and Order Items
         run: |
-          curl -X POST http://seller-service-app:8201/api/v1/products \
+          curl -X POST http://product-service-app:8201/api/v1/products/purchase \
             -H "Content-Type: application/json" \
             -d '{
                   "customerId": 1,
