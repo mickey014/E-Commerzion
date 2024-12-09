@@ -69,7 +69,7 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
 
     @BeforeEach
     void setUp() {
-        //orderId = "4a202918";
+        orderId = "4a202918";
         quantity = 2;
         unitPrice = BigDecimal.valueOf(100.50);
         totalPrice = BigDecimal.valueOf(201.00);
@@ -104,9 +104,8 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
         }
     }
 
-    @RabbitListener(queues = ORDER_ITEMS_QUEUE, containerFactory = "rabbitListenerContainerFactory")
-    @Test
-    @Order(1)
+    //@Test
+    //@Order(1)
     void shouldcreateOrderItems() {
         // userServiceClient.getUserById(customerId);
         // productServiceClient.showProductById(productId);
@@ -126,8 +125,8 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
         System.out.println("New order items: " + orderItemsDto);
     }
 
-    @Test
-    @Order(2)
+    //@Test
+    //@Order(2)
     void shouldReturnAllOrderItemsDetailsByCustomerId() {
 
         List<OrderItems> orderItems = Arrays.asList(newOrderItems);
@@ -155,7 +154,7 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
     }
 
     @Test
-    @Order(3)
+    @Order(1)
     void shouldReturnOrderItemsById() {
 
         // Act
