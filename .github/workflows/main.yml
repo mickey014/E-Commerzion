@@ -94,13 +94,17 @@ jobs:
           curl -X POST http://product-service-app:8201/api/v1/products \
             -H "Content-Type: application/json" \
             -d '{
+                "sellerId": 1,
                 "userId": 2,
-                "sellerName": "Kirk Mendoza",
-                "storeName": "K Tech Shop",
-                "email": "kirkmendoza9@gmail.com",
-                "phoneNumber": "093098001034",
-                "location": "Kirk St.",
-                "photoUrl": "https://kirk.dev.com"
+                "productName": "Iphone 15 test est test",
+                "skuCode": "20241116iphone15",
+                "productDescription": "test test descc",
+                "productCategory": "Mobile Phones",
+                "price": 99.95,
+                "features": "",
+                "stock": 100,
+                "availability": "In Stock",
+                "photoUrl": ""
             }'
             
       - name: Curl Request Body for Order and Order Items
