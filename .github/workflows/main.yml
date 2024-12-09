@@ -130,7 +130,9 @@ jobs:
                       }
                   ]
             }'
-      
+      - name: Curl 
+        run: |
+          curl http://product-service-app:8401/api/v1/orderItems/1
         
       - name: Run SellerService Integration Tests
         run: |
