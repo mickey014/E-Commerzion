@@ -133,6 +133,7 @@ jobs:
       - name: Curl 
         run: |
           curl http://order-items-service-app:8401/api/v1/orderItems/1
+          curl http://order-items-service-app:8401/api/v1/orderItems/2
         
       - name: Run SellerService Integration Tests
         run: |
