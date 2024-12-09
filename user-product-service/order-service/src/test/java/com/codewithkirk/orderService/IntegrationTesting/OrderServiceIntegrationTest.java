@@ -43,8 +43,8 @@ public class OrderServiceIntegrationTest extends OrderServiceIntegrationTestConf
     private Orders newOrder;
 
     private static String orderId; // Shared field for the orderId
-    private static Long customerId = 1L;    // Shared field for customerId
-    private static Long productId = 1L;    // Shared field for customerId
+    private static Long customerId;    // Shared field for customerId
+    private static Long productId;    // Shared field for customerId
 
     private BigDecimal totalAmount;
     private String orderStatus;
@@ -57,7 +57,7 @@ public class OrderServiceIntegrationTest extends OrderServiceIntegrationTestConf
 
     @BeforeEach
     void setUp() {
-        orderId = "2a6a44dd";
+        //orderId = "2a6a44dd";
         totalAmount = BigDecimal.valueOf(200.50);
         orderStatus = "Pending";
         shippingAddress = "1234 Elm Street, Some City, Some Country";
