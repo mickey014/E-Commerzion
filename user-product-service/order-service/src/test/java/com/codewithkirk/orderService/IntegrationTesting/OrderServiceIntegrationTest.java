@@ -57,7 +57,7 @@ public class OrderServiceIntegrationTest extends OrderServiceIntegrationTestConf
 
     @BeforeEach
     void setUp() {
-        orderId = "4a202918";
+        orderId = "2a6a44dd";
         totalAmount = BigDecimal.valueOf(200.50);
         orderStatus = "Pending";
         shippingAddress = "1234 Elm Street, Some City, Some Country";
