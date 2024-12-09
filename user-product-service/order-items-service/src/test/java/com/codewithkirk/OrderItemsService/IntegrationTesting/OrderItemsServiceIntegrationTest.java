@@ -86,7 +86,7 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
                 .orderId(orderItemsDto.getOrderId())
                 .customerId(orderItemsDto.getCustomerId())
                 .productId(orderItemsDto.getProductId())
-                .quantity(orderItemsDto.getQuantit())
+                .quantity(orderItemsDto.getQuantity())
                 .unitPrice(orderItemsDto.getUnitPrice())
                 .totalPrice(orderItemsDto.getUnitPrice().multiply(new BigDecimal(orderItemsDto.getQuantity())))
                 .build();
