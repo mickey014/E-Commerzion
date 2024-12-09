@@ -130,7 +130,7 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
         List<OrderItems> orderItems = Arrays.asList(newOrderItems);
 
         // Act: Call the method
-        List<OrderItems> result = orderItemsServiceImpl.getAllOrderItemsDetailsByCustomerId(orderItemsDto.getCustomerId());
+        List<OrderItems> result = orderItemsServiceImpl.getAllOrderItemsDetailsByCustomerId(customerId);
 
         // Assert: Verify the result
         assertNotNull(result);
@@ -152,7 +152,7 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
 
         // Act
         Optional<OrderItems> result = orderItemsServiceImpl
-                .getOrderItemsById(orderItemsDto.getOrderId());
+                .getOrderItemsById(orderItemsId);
 
         // Assert
         assertTrue(result.isPresent());
