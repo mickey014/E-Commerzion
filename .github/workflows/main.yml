@@ -88,6 +88,44 @@ jobs:
                 "location": "Kirk St.",
                 "photoUrl": "https://kirk.dev.com"
             }'
+            
+      - name: Curl Request Body for Product Service
+        run: |
+          curl -X POST http://seller-service-app:8201/api/v1/products \
+            -H "Content-Type: application/json" \
+            -d '{
+                "userId": 2,
+                "sellerName": "Kirk Mendoza",
+                "storeName": "K Tech Shop",
+                "email": "kirkmendoza9@gmail.com",
+                "phoneNumber": "093098001034",
+                "location": "Kirk St.",
+                "photoUrl": "https://kirk.dev.com"
+            }'
+            
+      - name: Curl Request Body for Order and Order Items
+        run: |
+          curl -X POST http://seller-service-app:8201/api/v1/products \
+            -H "Content-Type: application/json" \
+            -d '{
+                  "customerId": 1,
+                  "productId": 1,
+                  "orderStatus": "Pending",
+                  "shippingAddress": "1234 Elm Street, Some City, Some Country",
+                  "paymentMethod": "Credit Card",
+                  "paymentStatus": "Paid",
+                  "shippingMethod": "Standard",
+                  "orderItems": [
+                      {
+                          "quantity": 2, 
+                          "unitPrice": 50.25
+                      },
+                      {
+                          "quantity": 1,
+                          "unitPrice": 150.25
+                      }
+                  ]
+            }'
         
       - name: Run SellerService Integration Tests
         run: |
@@ -107,7 +145,21 @@ jobs:
           mvn clean -B test -Dtest=IntegrationTesting/* --projects product-service
         working-directory: user-product-service  # Replace with your correct directory 
         
-      - name: Clean up Docker Compose
-        if: always()
+      - name: Run OrderService Integration Tests
         run: |
-          docker compose -f docker-compose.prod.yml down
+          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
+          source /etc/environment
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          export PATH=$JAVA_HOME/bin:$PATH
+          mvn clean -B test -Dtest=IntegrationTesting/* --projects order-service
+        working-directory: user-product-service  # Replace with your correct directory 
+        
+      - name: Run OrderItemsService Integration Tests
+        run: |
+          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
+          source /etc/environment
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          export PATH=$JAVA_HOME/bin:$PATH
+          mvn clean -B test -Dtest=IntegrationTesting/* --projects order-items-service
+        working-directory: user-product-service  # Replace with your correct directory 
+        
