@@ -65,7 +65,7 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
     @BeforeEach
     void setUp() {
         orderItemsId = 1L;
-        orderId = "2a6a44dd";
+        orderId = "4a202918";
         customerId = 1L;
         productId = 1L;
         quantity = 2;
@@ -103,12 +103,12 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
         }
     }
 
-    //@Test
-    //@Order(1)
+    @Test
+    @Order(1)
     void shouldcreateOrderItems() {
-        userServiceClient.getUserById(customerId);
-        productServiceClient.showProductById(productId);
-        orderServiceClient.getOrderById(orderId);
+        // userServiceClient.getUserById(customerId);
+        // productServiceClient.showProductById(productId);
+        // orderServiceClient.getOrderById(orderId);
 
         orderItemsServiceImpl.createOrderItems(orderItemsDto);
 

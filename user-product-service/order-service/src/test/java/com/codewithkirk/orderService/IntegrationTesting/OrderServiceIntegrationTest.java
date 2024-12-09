@@ -103,8 +103,8 @@ public class OrderServiceIntegrationTest extends OrderServiceIntegrationTestConf
         }
     }
 
-    //@Test
-    //@Order(1)
+    @Test
+    @Order(1)
     void shouldCreateOrder() {
 
         orderServiceImpl.createOrder(orderDto);
