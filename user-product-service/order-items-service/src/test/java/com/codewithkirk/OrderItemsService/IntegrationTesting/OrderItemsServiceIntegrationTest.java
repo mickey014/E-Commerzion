@@ -125,6 +125,10 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
     void shouldReturnAllOrderItemsDetailsByCustomerId() {
 
         List<OrderItems> orderItems = Arrays.asList(newOrderItems);
+        
+        
+        System.out.println(orderItemsId);
+        System.out.println(orderId);
 
         // Act: Call the method
         List<OrderItems> result = orderItemsServiceImpl.getAllOrderItemsDetailsByCustomerId(customerId);
