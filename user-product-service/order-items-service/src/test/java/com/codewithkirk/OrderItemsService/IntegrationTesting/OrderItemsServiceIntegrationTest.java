@@ -65,7 +65,7 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
     @BeforeEach
     void setUp() {
         orderItemsId = 1L;
-        orderId = "4a202918";
+        //orderId = "4a202918";
         customerId = 1L;
         productId = 1L;
         quantity = 2;
@@ -83,13 +83,13 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
         );
 
         newOrderItems = OrderItems.builder()
-                .orderItemsId(orderItemsId)
-                .orderId(orderId)
-                .customerId(customerId)
-                .productId(productId)
-                .quantity(quantity)
-                .unitPrice(unitPrice)
-                .totalPrice(totalPrice)
+                .orderItemsId(orderItemsDto.getOrderItemsId)
+                .orderId(orderItemsDto.getOrderId)
+                .customerId(orderItemsDto.getCustomerId)
+                .productId(orderItemsDto.getProductId)
+                .quantity(orderItemsDto.getQuantity)
+                .unitPrice(orderItemsDto.getUnitPrice)
+                .totalPrice(orderItemsDto.getTotalPrice)
                 .build();
     }
 
