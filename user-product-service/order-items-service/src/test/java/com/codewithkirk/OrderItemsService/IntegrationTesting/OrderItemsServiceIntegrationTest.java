@@ -26,6 +26,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SpringBootTest
 @TestMethodOrder(OrderAnnotation.class)
@@ -48,6 +50,9 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
 
     @Autowired
     private OrderItemsServiceImpl orderItemsServiceImpl;
+    
+    @Autowired
+    private static final Logger logger = LoggerFactory.getLogger(OrderItemsServiceIntegrationTest.class);
 
     private OrderItemsDto orderItemsDto;
 
@@ -125,7 +130,7 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
     void shouldReturnAllOrderItemsDetailsByCustomerId() {
 
         List<OrderItems> orderItems = Arrays.asList(newOrderItems);
-        
+        logger.info("Received order with ID: {}", orderItemsDto.getOrderId());
         
         System.out.println(orderItemsId);
         System.out.println(orderId);
