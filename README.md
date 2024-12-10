@@ -1,29 +1,38 @@
-## E-Commerzion Project
+# E-Commerzion
 
-## Docker commands
+The E-Commerzion API is a microservices-based application designed to manage and integrate functionalities related to users and products, supporting operations such as user management, product cataloging, and service interactions.
 
-	Run The Production Engine
-	```
-	docker compose -f docker-compose.prod.yml up -d
-	```
-  
-	Stop The Production Engine
-	```
-	docker compose -f docker-compose.prod.yml down
-  ```
-	
-	Run The Development Engine
-	```
-	docker compose up -d 
-	```
-  
-	Stop The Development Engine
-	```
-	docker compose down
-	```
-  rabbit mq bug if orders and order items service down 
-	the rabbit mq itself keeps looping
+## Installation
 
+Download or clone the repository [E-Commerzion](https://github.com/mickey014/E-Commerzion/tree/main)
 
-	troubleshoot
-	- delete the queue to fix. 
+```bash
+https://github.com/mickey014/E-Commerzion/tree/main
+```
+
+## Documentation
+User Product Service API
+```
+https://github.com/mickey014/E-Commerzion/blob/main/README-user-product-api
+```
+
+## Usage
+
+Run The Production Engine
+```
+docker compose -f docker-compose.prod.yml up -d
+```
+Stop The Production Engine
+```
+docker compose -f docker-compose.prod.yml down
+```
+
+Run The Development Engine
+```
+docker compose up -d 
+```
+
+Stop The Development Engine
+```
+docker compose down
+```
