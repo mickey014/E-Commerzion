@@ -125,8 +125,8 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
         System.out.println("New order items: " + orderItemsDto);
     }
 
-    //@Test
-    //@Order(2)
+    @Test
+    @Order(1)
     void shouldReturnAllOrderItemsDetailsByCustomerId() {
 
         List<OrderItems> orderItems = Arrays.asList(newOrderItems);
@@ -137,7 +137,8 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
         System.out.println(orderId);
 
         // Act: Call the method
-        List<OrderItems> result = orderItemsServiceImpl.getAllOrderItemsDetailsByCustomerId(customerId);
+        List<OrderItems> result = orderItemsServiceImpl
+          .getAllOrderItemsDetailsByCustomerId(orderItemsDto.getCustomerId());
 
         // Assert: Verify the result
         assertNotNull(result);
@@ -154,12 +155,12 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
     }
 
     @Test
-    @Order(1)
+    @Order(2)
     void shouldReturnOrderItemsById() {
-
+      
         // Act
         Optional<OrderItems> result = orderItemsServiceImpl
-                .getOrderItemsById(orderItemsId);
+                .getOrderItemsById(orderItemsDto.getOrderItemsId());
 
         // Assert
         assertTrue(result.isPresent());
