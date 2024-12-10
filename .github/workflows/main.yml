@@ -130,40 +130,7 @@ jobs:
                       }
                   ]
             }'
-            
-      - name: Curl Request Body for Order
-        run: |
-          curl -X POST http://order-service-app:8301/api/v1/orders \
-            -H "Content-Type: application/json" \
-            -d '{
-                  "orderId": "4a202918",
-                  "customerId": 1,
-                  "productId": 1,
-                  "totalAmount": 700.50,
-                  "orderStatus": "Pending",
-                  "shippingAddress": "MOntalban Rizal",
-                  "paymentMethod": "COD",
-                  "paymentStatus": "Unpaid",
-                  "shippingMethod": "Standard"
-            }'
-      - name: Curl Request Body Order Items
-        run: |
-          curl -X POST http://order-items-service-app:8401/api/v1/ordersItems \
-            -H "Content-Type: application/json" \
-            -d '{
-                  "orderId": 4a202918,
-                  "customerId": 1,
-                  "productId": 1,
-                  "quantity": 100,
-                  "unitPrice": 75.00,
-                  "totalPrice": 75000.00
-            }'
-
-      - name: Curl 
-        run: |
-          curl http://order-service-app:8301/api/v1/orders/4a202918
-          curl http://order-items-service-app:8401/api/v1/orderItems/1
-        
+                   
       - name: Run SellerService Integration Tests
         run: |
           echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
