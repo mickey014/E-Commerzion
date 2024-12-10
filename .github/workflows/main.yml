@@ -148,7 +148,7 @@ jobs:
 
       - name: Curl 
         run: |
-          curl http://order-service-app:8301/api/v1/orders/1
+          curl http://order-service-app:8301/api/v1/orders/4a202918
           curl http://order-items-service-app:8401/api/v1/orderItems/1
           curl http://order-items-service-app:8401/api/v1/orderItems/2
         
