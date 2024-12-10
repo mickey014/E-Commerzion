@@ -159,7 +159,7 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
 
         // Act
         Optional<OrderItems> result = orderItemsServiceImpl
-                .getOrderItemsById(customerId);
+                .getOrderItemsById(orderItemsId);
 
         // Assert
         assertTrue(result.isPresent());
