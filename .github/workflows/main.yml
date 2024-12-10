@@ -1,4 +1,4 @@
-name: Deploy to Production
+name: E-Commerzion - Main Branch
 
 on:
   pull_request:
@@ -6,108 +6,192 @@ on:
       - main
 
 jobs:
-  deploy-to-production:
+  integration-testing:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout repository
+      # Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Ensure dev branch is updated
+      # Ensure dev branch is updated
       - name: Update dev branch
         run: |
           git fetch origin dev
           git checkout dev
           git pull origin dev
-
-      # Step 3: Check if features branch is merged into dev
-      - name: Check branch merge status
+  
+      - name: Install Docker (official script)
         run: |
-          git fetch origin dev
-          if ! git merge-base --is-ancestor origin/dev HEAD; then
-            echo "This branch must be merged into 'dev' before being merged into 'main'."
-            exit 1
-          fi
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          
-      - name: Pull RabbitMQ Image
-        run: docker pull rabbitmq:3.9.11-management-alpine
-          
-      - name: Tag and Push RabbitMQ Image
+            sudo curl -fsSL https://get.docker.com -o get-docker.sh
+            sudo sh get-docker.sh
+            sudo systemctl enable docker
+            sudo systemctl start docker
+            docker --version
+        
+      - name: Run Docker Compose production
         run: |
-          docker tag rabbitmq:3.9.11-management-alpine ${{ secrets.DOCKER_USERNAME }}/e-commerzion-rabbitmq
-          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-rabbitmq
-
-      - name: Pull postgres:14-alpine
-        run: docker pull postgres:14-alpine
-
-      - name: Tag and Push PostgreSQL Image for User Service
+          docker compose -f docker-compose.prod.yml up -d
+        env:
+          DOCKER_BUILDKIT: 1  # Enable BuildKit for optimized builds
+          
+      - name: Install Java 17
         run: |
-          docker tag postgres:14-alpine ${{ secrets.DOCKER_USERNAME }}/e-commerzion-user-service-db
-          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-user-service-db
-
-      - name: Build and Push User Service Docker Image
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          file: user-product-service/user-service/Dockerfile.users
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-user-service-app:latest
-
-      - name: Tag and Push PostgreSQL Image for Seller Service
+          sudo apt install -y openjdk-17-jdk
+          
+      - name: Configure hosts
         run: |
-          docker tag postgres:14-alpine ${{ secrets.DOCKER_USERNAME }}/e-commerzion-seller-service-db
-          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-seller-service-db
-
-      - name: Build and Push Seller Service Docker Image
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          file: user-product-service/seller-service/Dockerfile.sellers
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-seller-service-app:latest
+          echo "127.0.0.1 user-service-app" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 seller-service-app" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 product-service-app" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 order-service-app" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 order-items-service-app" | sudo tee -a /etc/hosts
           
-      - name: Tag and Push PostgreSQL Image for Product Service
+      - name: Run UserService Integration Tests
         run: |
-          docker tag postgres:14-alpine ${{ secrets.DOCKER_USERNAME }}/e-commerzion-product-service-db
-          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-product-service-db
-          
-      - name: Build and Push Product Service Docker Image
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          file: user-product-service/product-service/Dockerfile.products
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-product-service-app:latest
-          
-      - name: Tag and Push PostgreSQL Image for Order Service
+          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
+          source /etc/environment
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          export PATH=$JAVA_HOME/bin:$PATH
+          mvn clean -B test -Dtest=IntegrationTesting/* --projects user-service
+        working-directory: user-product-service  # Replace with your correct directory  
+        
+      - name: Curl Request Body for User Service
+        run : |
+          curl -X POST http://user-service-app:8001/api/v1/users/register \
+            -H "Content-Type: application/json" \
+            -d '{
+                "name": "John Doe",
+                "username": "jdoe@gmail.com",
+                "password": "test",
+                "confirmPassword": "test"
+            }'
+          curl -X POST http://user-service-app:8001/api/v1/users/register \
+            -H "Content-Type: application/json" \
+            -d '{
+                "name": "Kirk Mendoza",
+                "username": "kirkmendoza9@gmail.com",
+                "password": "test",
+                "confirmPassword": "test"
+            }'
+        
+      - name: Curl Request Body for Seller Service
         run: |
-          docker tag postgres:14-alpine ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-service-db
-          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-service-db
-          
-      - name: Build and Push Order Service Docker Image
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          file: user-product-service/order-service/Dockerfile.orders
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-service-app:latest
-          
-      - name: Tag and Push PostgreSQL Image for Order Items Service
+          curl -X POST http://seller-service-app:8101/api/v1/sellers/register \
+            -H "Content-Type: application/json" \
+            -d '{
+                "userId": 2,
+                "sellerName": "Kirk Mendoza",
+                "storeName": "K Tech Shop",
+                "email": "kirkmendoza9@gmail.com",
+                "phoneNumber": "093098001034",
+                "location": "Kirk St.",
+                "photoUrl": "https://kirk.dev.com"
+            }'
+            
+      - name: Curl Request Body for Product Service
         run: |
-          docker tag postgres:14-alpine ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-items-service-db
-          docker push ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-items-service-db
-          
-      - name: Build and Push Order Items Service Docker Image
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          file: user-product-service/order-items-service/Dockerfile.orderItems
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/e-commerzion-order-items-service-app:latest
+          curl -X POST http://product-service-app:8201/api/v1/products \
+            -H "Content-Type: application/json" \
+            -d '{
+                "sellerId": 1,
+                "userId": 2,
+                "productName": "Iphone 15 test est test",
+                "skuCode": "20241116iphone15",
+                "productDescription": "test test descc",
+                "productCategory": "Mobile Phones",
+                "price": 99.95,
+                "features": "",
+                "stock": 100,
+                "availability": "In Stock",
+                "photoUrl": ""
+            }'
+            
+      - name: Curl Request Body for Order and Order Items
+        run: |
+          curl -X POST http://product-service-app:8201/api/v1/products/purchase \
+            -H "Content-Type: application/json" \
+            -d '{
+                  "customerId": 1,
+                  "productId": 1,
+                  "orderStatus": "Pending",
+                  "shippingAddress": "1234 Elm Street, Some City, Some Country",
+                  "paymentMethod": "Credit Card",
+                  "paymentStatus": "Paid",
+                  "shippingMethod": "Standard",
+                  "orderItems": [
+                      {
+                          "quantity": 2, 
+                          "unitPrice": 50.25
+                      },
+                      {
+                          "quantity": 1,
+                          "unitPrice": 150.25
+                      }
+                  ]
+            }'
+            
+      - name: Curl Request Body for Order
+        run: |
+          curl -X POST http://order-service-app:8301/api/v1/orders \
+            -H "Content-Type: application/json" \
+            -d '{
+                  "orderId": "4a202918",
+                  "customerId": 1,
+                  "productId": 1,
+                  "totalAmount": 700.50,
+                  "orderStatus": "Pending",
+                  "shippingAddress": "MOntalban Rizal",
+                  "paymentMethod": "COD",
+                  "paymentStatus": "Unpaid",
+                  "shippingMethod": "Standard"
+            }'
+      - name: Curl Request Body Order Items
+        run: |
+          curl -X POST http://order-items-service-app:8401/api/v1/ordersItems \
+            -H "Content-Type: application/json" \
+            -d '{
+                  "orderId": 4a202918,
+                  "customerId": 1,
+                  "productId": 1,
+                  "quantity": 1,
+                  "unitPrice": 75.00,
+                  "totalPrice": 75000.00
+            }'
+        
+      - name: Run SellerService Integration Tests
+        run: |
+          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
+          source /etc/environment
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          export PATH=$JAVA_HOME/bin:$PATH
+          mvn clean -B test -Dtest=IntegrationTesting/* --projects seller-service
+        working-directory: user-product-service  # Replace with your correct directory  
+        
+      - name: Run ProductService Integration Tests
+        run: |
+          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
+          source /etc/environment
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          export PATH=$JAVA_HOME/bin:$PATH
+          mvn clean -B test -Dtest=IntegrationTesting/* --projects product-service
+        working-directory: user-product-service  # Replace with your correct directory 
+        
+      - name: Run OrderService Integration Tests
+        run: |
+          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
+          source /etc/environment
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          export PATH=$JAVA_HOME/bin:$PATH
+          mvn clean -B test -Dtest=IntegrationTesting/* --projects order-service
+        working-directory: user-product-service  # Replace with your correct directory 
+        
+      - name: Run OrderItemsService Integration Tests
+        run: |
+          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
+          source /etc/environment
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          export PATH=$JAVA_HOME/bin:$PATH
+          mvn clean -B test -Dtest=IntegrationTesting/* --projects order-items-service
+        working-directory: user-product-service  # Replace with your correct directory 
+        

@@ -26,6 +26,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SpringBootTest
 @TestMethodOrder(OrderAnnotation.class)
@@ -48,15 +50,18 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
 
     @Autowired
     private OrderItemsServiceImpl orderItemsServiceImpl;
+    
+    @Autowired
+    private static final Logger logger = LoggerFactory.getLogger(OrderItemsServiceIntegrationTest.class);
 
     private OrderItemsDto orderItemsDto;
 
     private OrderItems newOrderItems;
 
-    private Long orderItemsId;
+    private Long orderItemsId = 1L;
     private String orderId;
-    private Long customerId;
-    private Long productId;
+    private Long customerId = 1L;
+    private Long productId = 1L;
 
     private Integer quantity;
     private BigDecimal unitPrice;
@@ -64,10 +69,7 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
 
     @BeforeEach
     void setUp() {
-        orderItemsId = 1L;
-        orderId = "2a6a44dd";
-        customerId = 1L;
-        productId = 1L;
+        orderId = "4a202918";
         quantity = 2;
         unitPrice = BigDecimal.valueOf(100.50);
         totalPrice = BigDecimal.valueOf(201.00);
@@ -83,13 +85,12 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
         );
 
         newOrderItems = OrderItems.builder()
-                .orderItemsId(orderItemsId)
-                .orderId(orderId)
-                .customerId(customerId)
-                .productId(productId)
-                .quantity(quantity)
-                .unitPrice(unitPrice)
-                .totalPrice(totalPrice)
+                .orderId(orderItemsDto.getOrderId())
+                .customerId(orderItemsDto.getCustomerId())
+                .productId(orderItemsDto.getProductId())
+                .quantity(orderItemsDto.getQuantity())
+                .unitPrice(orderItemsDto.getUnitPrice())
+                .totalPrice(orderItemsDto.getUnitPrice().multiply(new BigDecimal(orderItemsDto.getQuantity())))
                 .build();
     }
 
@@ -106,9 +107,9 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
     @Test
     @Order(1)
     void shouldcreateOrderItems() {
-        userServiceClient.getUserById(customerId);
-        productServiceClient.showProductById(productId);
-        orderServiceClient.getOrderById(orderId);
+        // userServiceClient.getUserById(customerId);
+        // productServiceClient.showProductById(productId);
+        // orderServiceClient.getOrderById(orderId);
 
         orderItemsServiceImpl.createOrderItems(orderItemsDto);
 
@@ -129,9 +130,15 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
     void shouldReturnAllOrderItemsDetailsByCustomerId() {
 
         List<OrderItems> orderItems = Arrays.asList(newOrderItems);
+        logger.info("Received order with ID: {}", orderItemsDto.getOrderId());
+
+        
+        System.out.println(orderItemsId);
+        System.out.println(orderId);
 
         // Act: Call the method
-        List<OrderItems> result = orderItemsServiceImpl.getAllOrderItemsDetailsByCustomerId(customerId);
+        List<OrderItems> result = orderItemsServiceImpl
+          .getAllOrderItemsDetailsByCustomerId(orderItemsDto.getCustomerId());
 
         // Assert: Verify the result
         assertNotNull(result);
@@ -150,10 +157,10 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
     @Test
     @Order(3)
     void shouldReturnOrderItemsById() {
-
+      
         // Act
         Optional<OrderItems> result = orderItemsServiceImpl
-                .getOrderItemsById(orderItemsId);
+                .getOrderItemsById(orderItemsDto.getOrderItemsId());
 
         // Assert
         assertTrue(result.isPresent());

@@ -161,6 +161,7 @@ public class ProductServiceUnitTest {
         ProductPurchaseDto productPurchaseDto = new ProductPurchaseDto();
         productPurchaseDto.setOrderId(orderId);
         productPurchaseDto.setCustomerId(userId);
+        productPurchaseDto.setProductId(productId);
         productPurchaseDto.setOrderStatus("Pending");
         productPurchaseDto.setShippingAddress("1234 Elm Street, Some City, Some Country");
         productPurchaseDto.setPaymentMethod("Credit Card");

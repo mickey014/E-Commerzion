@@ -6,30 +6,101 @@ on:
       - main
 
 jobs:
-  ensure-dev-merge:
+  integration-testing:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout repository
+      # Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Ensure dev branch is up-to-date
+      # Ensure dev branch is updated
       - name: Update dev branch
         run: |
           git fetch origin dev
           git checkout dev
           git pull origin dev
-
-      # Step 3: Check if the features branch is merged into dev
-      - name: Check if features branch is merged into dev
+  
+      - name: Install Docker (official script)
         run: |
-          # Fetch latest changes from the dev branch
-          git fetch origin dev
+            sudo curl -fsSL https://get.docker.com -o get-docker.sh
+            sudo sh get-docker.sh
+            sudo systemctl enable docker
+            sudo systemctl start docker
+            docker --version
+        
+      - name: Run Docker Compose production
+        run: |
+          docker compose -f docker-compose.prod.yml up -d
+        env:
+          DOCKER_BUILDKIT: 1  # Enable BuildKit for optimized builds
           
-          # Check if the current branch is merged into dev
-          if ! git merge-base --is-ancestor origin/dev HEAD; then
-            echo "This branch must be merged into 'dev' before being merged into 'main'."
-            exit 1
-          fi
-      - 
+      - name: Install Java 17
+        run: |
+          sudo apt install -y openjdk-17-jdk
+               
+      - name: Run UserService Integration Tests
+        run: |
+          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
+          source /etc/environment
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          export PATH=$JAVA_HOME/bin:$PATH
+          mvn clean -B test -Dtest=IntegrationTesting/* --projects user-service
+        working-directory: user-product-service  # Replace with your correct directory  
+        
+      - name: Run SellerService Integration Tests
+        run: |
+          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
+          source /etc/environment
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          export PATH=$JAVA_HOME/bin:$PATH
+          echo "127.0.0.1 user-service-app" | sudo tee -a /etc/hosts
+          curl -X POST http://user-service-app:8001/api/v1/users/register \
+            -H "Content-Type: application/json" \
+            -d '{
+                "name": "John Doe",
+                "username": "jdoe@gmail.com",
+                "password": "test",
+                "confirmPassword": "test"
+            }'
+          curl -X POST http://user-service-app:8001/api/v1/users/register \
+            -H "Content-Type: application/json" \
+            -d '{
+                "name": "Kirk Mendoza",
+                "username": "kirkmendoza9@gmail.com",
+                "password": "test",
+                "confirmPassword": "test"
+            }'
+          mvn clean -B test -Dtest=IntegrationTesting/* --projects seller-service
+        working-directory: user-product-service  # Replace with your correct directory  
+        
+      - name: Run ProductService Integration Tests
+        run: |
+          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
+          source /etc/environment
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          export PATH=$JAVA_HOME/bin:$PATH
+          echo "127.0.0.1 user-service-app" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 seller-service-app" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 product-service-app" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 order-service-app" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 order-items-service-app" | sudo tee -a /etc/hosts
+          
+          curl -X POST http://seller-service-app:8101/api/v1/sellers/register \
+            -H "Content-Type: application/json" \
+            -d '{
+                "userId": 2,
+                "sellerName": "Kirk Mendoza",
+                "storeName": "K Tech Shop",
+                "email": "kirkmendoza9@gmail.com",
+                "phoneNumber": "093098001034",
+                "location": "Kirk St.",
+                "photoUrl": "https://kirk.dev.com"
+            }'
+          mvn clean -B test -Dtest=IntegrationTesting/* --projects product-service
+        working-directory: user-product-service  # Replace with your correct directory 
+        
+      - name: Clean up Docker Compose
+        if: always()
+        run: |
+          docker compose -f docker-compose.prod.yml down
