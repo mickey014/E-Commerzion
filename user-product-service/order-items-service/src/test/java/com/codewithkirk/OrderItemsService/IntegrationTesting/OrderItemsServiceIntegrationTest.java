@@ -104,8 +104,8 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
         }
     }
 
-    //@Test
-    //@Order(1)
+    @Test
+    @Order(1)
     void shouldcreateOrderItems() {
         // userServiceClient.getUserById(customerId);
         // productServiceClient.showProductById(productId);
@@ -126,7 +126,7 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
     }
 
     @Test
-    @Order(1)
+    @Order(2)
     void shouldReturnAllOrderItemsDetailsByCustomerId() {
 
         List<OrderItems> orderItems = Arrays.asList(newOrderItems);
@@ -155,7 +155,7 @@ public class OrderItemsServiceIntegrationTest extends OrderItemsServiceIntegrati
     }
 
     @Test
-    @Order(2)
+    @Order(3)
     void shouldReturnOrderItemsById() {
       
         // Act
