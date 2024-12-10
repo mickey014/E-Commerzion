@@ -13,7 +13,7 @@ https://github.com/mickey014/E-Commerzion/tree/main
 ## Documentation
 User Product Service API
 ```
-https://github.com/mickey014/E-Commerzion/blob/main/README-user-product-api
+https://github.com/mickey014/E-Commerzion/blob/main/README-user-product-api.md
 ```
 
 ## Usage
